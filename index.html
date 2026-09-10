@@ -30,14 +30,23 @@
     </div>
 </div>
 
-<!-- Подключаем Firebase -->
 <script type="module">
-    import { initializeApp } from "https://gstatic.com";
-    import { getDatabase, ref, push, onChildAdded } from "https://gstatic.com";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-    // Специальная открытая демо-база данных для вашего чата
+    // Ваши данные из Firebase
     const firebaseConfig = {
-        databaseURL: "https://firebasedatabase.app"
+        apiKey: "AIzaSyDFzJR2Yg2Z5VS5PEX7S8fDBTS8J49hfJM",
+        authDomain: "chatprojecttest-fed60.firebaseapp.com",
+        
+        // ВАЖНО: Вставьте сюда ссылку на вашу базу данных! (Смотрите инструкцию ниже)
+        databaseURL: "https://chatprojecttest-fed60-default-rtdb.firebaseio.com/", 
+        
+        projectId: "chatprojecttest-fed60",
+        storageBucket: "chatprojecttest-fed60.firebasestorage.app",
+        messagingSenderId: "888428258274",
+        appId: "1:888428258274:web:bc3a453ba34208992f4fbb",
+        measurementId: "G-GTY7Y12J65"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -49,7 +58,6 @@
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
 
-    // Функция отправки
     function sendMessage() {
         const name = usernameInput.value.trim() || "Аноним";
         const text = msgInput.value.trim();
@@ -68,7 +76,6 @@
     sendBtn.addEventListener('click', sendMessage);
     msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 
-    // Слушаем базу данных: при появлении нового сообщения у ЛЮБОГО пользователя, оно сразу отрисуется на экране
     onChildAdded(messagesRef, (data) => {
         const msgData = data.val();
         const msgElement = document.createElement('div');
@@ -76,10 +83,9 @@
         
         msgElement.innerHTML = `<div class="name">${escapeHTML(msgData.username)}</div><div>${escapeHTML(msgData.message)}</div>`;
         messagesContainer.appendChild(msgElement);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight; // Скролл вниз
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     });
 
-    // Защита от простейшего взлома кодом
     function escapeHTML(str) {
         return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
     }
