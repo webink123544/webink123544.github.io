@@ -20,16 +20,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libboost-all-dev \
     libopus-dev \
     libcurl4-openssl-dev \
+    libliquid-dev \
     psmisc \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
 RUN git clone https://github.com/sv1btl/PhantomSDR-Plus.git .
 
-RUN meson setup build --buildtype=release \
+# Pass extra compiler flags to suppress treat-as-error warnings on GCC 12
+RUN meson setup build --buildtype=release -Dc_args="-Wno-error" -Dcpp_args="-Wno-error" \
     && meson compile -C build
 
-# Step 2: Runtime stage
+# Step 2: Minimal runtime stage
 FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -43,6 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzstd1 \
     libopus0 \
     libcurl4 \
+    libliquid2d \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
