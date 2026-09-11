@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anarchy Relay</title>
+    <title>Anarchy Relay & WebRX</title>
     <style>
         * { 
             margin: 0; 
@@ -16,13 +16,32 @@
             background: #050505; 
             color: #d4d4d4; 
             display: flex; 
-            justify-content: center; 
-            align-items: center; 
             min-height: 100vh; 
             position: relative; 
             font-size: 0.85rem;
+            overflow: hidden;
         }
         
+        /* Главный контейнер для разделения на Receiver и Chat */
+        .app-layout {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .sdr-panel {
+            flex: 1;
+            height: 100%;
+            background: #000;
+            border-right: 1px solid #1f1f1f;
+        }
+
+        .sdr-panel iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
         .warning-popup {
             position: absolute;
             top: 20px;
@@ -40,6 +59,7 @@
             gap: 10px;
             font-size: 0.8rem;
             animation: fadeOut 0.5s ease 3s forwards;
+            pointer-events: none;
         }
 
         @keyframes fadeOut {
@@ -78,15 +98,13 @@
         .auth-toggle:hover { color: #aaa; }
 
         .chat-container { 
-            width: 95%; 
-            max-width: 850px; 
-            height: 90vh; 
+            width: 420px; 
+            height: 100vh; 
             background: #080808; 
-            border-radius: 2px; 
             display: flex; 
             flex-direction: column; 
             overflow: hidden; 
-            border: 1px solid #1f1f1f;
+            border-left: 1px solid #1f1f1f;
         }
         
         .chat-header { 
@@ -121,7 +139,7 @@
             background: #0a0a0a; 
             padding: 8px 12px; 
             border-radius: 2px; 
-            max-width: 85%; 
+            max-width: 90%; 
             width: fit-content; 
             word-break: break-word; 
             border: 1px solid #161616;
@@ -241,11 +259,17 @@
             padding: 8px 14px;
         }
 
-        .send-btn-icon {
-            width: 16px;
-            height: 16px;
-            object-fit: contain;
-            display: block;
+        @media (max-width: 900px) {
+            .app-layout {
+                flex-direction: column;
+            }
+            .chat-container {
+                width: 100%;
+                height: 50vh;
+            }
+            .sdr-panel {
+                height: 50vh;
+            }
         }
     </style>
 </head>
@@ -278,26 +302,30 @@
     </div>
 </div>
 
-<div class="chat-container">
-    <div class="chat-header">
-        <span class="header-title">[ ANARCHY_NET // RELAY_01 ]</span>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <span id="currentUser" style="font-size: 0.75rem; color: #666;"></span>
-            <button id="changeNickBtn" class="btn-small" style="background:#1f2937;">Alias</button>
-            <button id="logoutBtn" class="btn-small">Exit</button>
-        </div>
+<div class="app-layout">
+    <div class="sdr-panel">
+        <iframe src="https://simtx-webrx.onrender.com" allow="autoplay"></iframe>
     </div>
-    <div class="messages" id="messages"></div>
-    <form class="input-area" id="chatForm" onsubmit="return false;" autocomplete="off">
-        <label class="img-upload-btn" title="Upload Image">
-            [IMG]
-            <input type="file" id="imgInput" accept="image/*" style="display: none;">
-        </label>
-        <input type="text" id="msgInput" placeholder="Broadcast message..." style="flex: 1;" autocomplete="off">
-        <button id="sendBtn" type="button" title="Send Message">
-            <img src="send.png" alt="Send" class="send-btn-icon">
-        </button>
-    </form>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <span class="header-title">[ ANARCHY_NET // RELAY_01 ]</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span id="currentUser" style="font-size: 0.75rem; color: #666;"></span>
+                <button id="changeNickBtn" class="btn-small" style="background:#1f2937;">Alias</button>
+                <button id="logoutBtn" class="btn-small">Exit</button>
+            </div>
+        </div>
+        <div class="messages" id="messages"></div>
+        <form class="input-area" id="chatForm" onsubmit="return false;" autocomplete="off">
+            <label class="img-upload-btn" title="Upload Image">
+                [IMG]
+                <input type="file" id="imgInput" accept="image/*" style="display: none;">
+            </label>
+            <input type="text" id="msgInput" placeholder="Broadcast message..." style="flex: 1;" autocomplete="off">
+            <button id="sendBtn" type="button" title="Send Message">SEND</button>
+        </form>
+    </div>
 </div>
 
 <script type="module">
@@ -442,7 +470,7 @@
     authModeToggle.addEventListener('click', () => {
         if (currentMode === 'login') {
             currentMode = 'register';
-            authTitle.textContent = 'N E W   I D E N T I T Y';
+            authTitle.textContent = 'N E W    I D E N T I T Y';
             authPrimaryBtn.textContent = 'Register';
             authModeToggle.textContent = 'Return to Auth';
             authNickname.style.display = 'block';
@@ -459,7 +487,7 @@
 
     authResetToggle.addEventListener('click', () => {
         currentMode = 'reset';
-        authTitle.textContent = 'P I N   O V E R R I D E';
+        authTitle.textContent = 'P I N    O V E R R I D E';
         authPrimaryBtn.textContent = 'Update Key';
         authRecoveryCode.style.display = 'block';
         authNickname.style.display = 'none';
