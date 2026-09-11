@@ -1,23 +1,208 @@
-<div class="sdr-panel" style="width: 100%; height: 100%; background: #000; position: relative;">
-  <iframe id="sdrFrame" style="width: 100%; height: 100%; border: none;" allow="autoplay; microphone"></iframe>
-</div>
-
-<script>
-  (async function loadEmbeddedSDR() {
-    const targetUrl = 'https://openwebrx-relay-b2tpg.sprites.app/#freq=4625000,mod=usb,sql=-150';
-    const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl);
-
-    try {
-      const response = await fetch(proxyUrl);
-      let html = await response.text();
-      
-      // Исправляем относительные пути скриптов и стилей
-      html = html.replace(/<head>/i, `<head><base href="https://openwebrx-relay-b2tpg.sprites.app/">`);
-
-      const iframe = document.getElementById('sdrFrame');
-      iframe.srcdoc = html;
-    } catch (err) {
-      console.error('Ошибка загрузки SDR:', err);
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ANARCHY_NET // RELAY & CHAT</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-  })();
-</script>
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      background-color: #0b0c10;
+      color: #c5c6c7;
+      font-family: 'Courier New', Courier, monospace;
+      overflow: hidden;
+    }
+
+    .app-layout {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Левая панель - SDR Приемник */
+    .sdr-panel {
+      flex: 1;
+      height: 100%;
+      background: #000;
+      border-right: 2px solid #1f2833;
+      position: relative;
+    }
+
+    .sdr-panel iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* Правая панель - Чат */
+    .chat-container {
+      width: 380px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #1f2833;
+    }
+
+    .chat-header {
+      background: #0b0c10;
+      padding: 12px 15px;
+      border-bottom: 1px solid #45a29e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      color: #66fcf1;
+      font-weight: bold;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+    }
+
+    .btn-small {
+      background: #45a29e;
+      color: #0b0c10;
+      border: none;
+      padding: 4px 8px;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    .btn-small:hover {
+      background: #66fcf1;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
+    .input-area {
+      padding: 10px;
+      background: #0b0c10;
+      border-top: 1px solid #1f2833;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .img-upload-btn {
+      color: #45a29e;
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 4px;
+    }
+
+    .input-area input[type="text"] {
+      flex: 1;
+      background: #1f2833;
+      border: 1px solid #45a29e;
+      color: #66fcf1;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .input-area button {
+      background: #66fcf1;
+      color: #0b0c10;
+      border: none;
+      padding: 8px 12px;
+      font-family: inherit;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .input-area button:hover {
+      background: #45a29e;
+    }
+
+    /* Адаптивность для мобилок */
+    @media (max-width: 768px) {
+      .app-layout {
+        flex-direction: column;
+      }
+      .sdr-panel {
+        height: 60%;
+        border-right: none;
+        border-bottom: 2px solid #1f2833;
+      }
+      .chat-container {
+        width: 100%;
+        height: 40%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    <!-- SDR Приемник -->
+    <div class="sdr-panel">
+      <iframe id="sdrFrame" allow="autoplay; microphone; clipboard-write; encrypted-media"></iframe>
+    </div>
+
+    <!-- Чат -->
+    <div class="chat-container">
+      <div class="chat-header">
+        <span class="header-title">[ ANARCHY_NET // RELAY_01 ]</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span id="currentUser" style="font-size: 0.75rem; color: #888;"></span>
+          <button id="changeNickBtn" class="btn-small">Alias</button>
+          <button id="logoutBtn" class="btn-small">Exit</button>
+        </div>
+      </div>
+      <div class="messages" id="messages">
+        <div style="color: #45a29e;">[SYSTEM]: Connection established to relay node.</div>
+      </div>
+      <form class="input-area" id="chatForm" onsubmit="return false;" autocomplete="off">
+        <label class="img-upload-btn" title="Upload Image">
+          [IMG]
+          <input type="file" id="imgInput" accept="image/*" style="display: none;">
+        </label>
+        <input type="text" id="msgInput" placeholder="Broadcast message..." autocomplete="off">
+        <button id="sendBtn" type="button" title="Send Message">SEND</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Скрипт безопасной подгрузки OpenWebRX через srcdoc -->
+  <script>
+    (async function loadEmbeddedSDR() {
+      const targetUrl = 'https://openwebrx-relay-b2tpg.sprites.app/#freq=4625000,mod=usb,sql=-150';
+      const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl);
+
+      try {
+        const response = await fetch(proxyUrl);
+        let html = await response.text();
+        
+        // Вставляем базовый адрес оригинального сайта, чтобы все скрипты, картинки и стили OpenWebRX загружались корректно
+        html = html.replace(/<head>/i, `<head><base href="https://openwebrx-relay-b2tpg.sprites.app/">`);
+
+        const iframe = document.getElementById('sdrFrame');
+        iframe.srcdoc = html;
+      } catch (err) {
+        console.error('Failed to embed SDR via proxy JS:', err);
+      }
+    })();
+  </script>
+
+</body>
+</html>
