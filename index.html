@@ -304,7 +304,7 @@
 
 <div class="app-layout">
     <div class="sdr-panel">
-        <iframe src="https://openwebrx-relay-b2tpg.sprites.app/#freq=4625000,mod=usb,sql=-150" allow="autoplay"></iframe>
+        <iframe src="https://openwebrx-relay-b2tpg.sprites.app/#freq=4625000,mod=usb,sql=-150" allow="autoplay; microphone"></iframe>
     </div>
 
     <div class="chat-container">
@@ -470,7 +470,7 @@
     authModeToggle.addEventListener('click', () => {
         if (currentMode === 'login') {
             currentMode = 'register';
-            authTitle.textContent = 'N E W    I D E N T I T Y';
+            authTitle.textContent = 'N E W   I D E N T I T Y';
             authPrimaryBtn.textContent = 'Register';
             authModeToggle.textContent = 'Return to Auth';
             authNickname.style.display = 'block';
@@ -487,7 +487,7 @@
 
     authResetToggle.addEventListener('click', () => {
         currentMode = 'reset';
-        authTitle.textContent = 'P I N    O V E R R I D E';
+        authTitle.textContent = 'P I N   O V E R R I D E';
         authPrimaryBtn.textContent = 'Update Key';
         authRecoveryCode.style.display = 'block';
         authNickname.style.display = 'none';
