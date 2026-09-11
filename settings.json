@@ -1,0 +1,19 @@
+{
+  "version": 8,
+  "sdrs": {
+    "simtx": {
+      "name": "SimTX SDR",
+      "type": "rtl_tcp",
+      "remote": "bore.pub:64011",
+      "profiles": {
+        "default": {
+          "name": "SimTX Band",
+          "center_freq": 7050000,
+          "samp_rate": 250000,
+          "start_freq": 7050000,
+          "start_mod": "am"
+        }
+      }
+    }
+  }
+}
