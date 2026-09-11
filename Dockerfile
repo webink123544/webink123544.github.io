@@ -1,12 +1,10 @@
-# Step 1: Build PhantomSDR-Plus (C++ backend) from source
+# Step 1: Build PhantomSDR-Plus backend
 FROM debian:bookworm AS builder
 
-# Prevent interactive prompts during apt installations
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install CA certificates first, then the actual C++ dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
-    && apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     git \
     build-essential \
     cmake \
@@ -21,41 +19,36 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
     libzstd-dev \
     libboost-all-dev \
     libopus-dev \
-    libliquid-dev \
     psmisc \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
-# Clone the official repository
 RUN git clone https://github.com/sv1btl/PhantomSDR-Plus.git .
 
-# Build using Meson and Ninja
 RUN meson setup build --buildtype=release \
     && meson compile -C build
 
-# Step 2: Minimal runtime image
+# Step 2: Runtime stage
 FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install runtime dependencies and certificates
+# Installed using general package names to prevent exit code 100 on sub-version mismatches
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
-    libfftw3-double3 \
     libfftw3-single3 \
-    libboost-system1.81.0 \
-    libboost-iostreams1.81.0 \
+    libfftw3-double3 \
+    libboost-system-dev \
+    libboost-iostreams-dev \
     libzstd1 \
-    libflac++6v5 \
     libopus0 \
-    libliquid2d \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-# Copy the compiled spectrumserver binary
+
+# Copy executable and configuration
 COPY --from=builder /build/build/spectrumserver /app/spectrumserver
 COPY config.json /app/config.json
 
 EXPOSE 8080
-CMD ["./spectrumserver", "--config", "config.json"]
+CMD ["./spectrumserver", "-c", "config.json"]
