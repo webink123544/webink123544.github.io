@@ -3,32 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Chat</title>
+    <title>⚡ Anarchy Chat ⚡</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background: #f3f4f6; color: #1f2937; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        body { background: #000000; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; position: relative; }
         
+        .warning-popup {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #dc2626;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeOut 0.5s ease 3s forwards;
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        /* Auth Modal Overlay */
+        .auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000;
+        }
+
+        .auth-box {
+            background: #121212;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #222222;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 25px rgba(220, 38, 38, 0.2);
+        }
+
+        .auth-box h2 { margin-bottom: 15px; color: #dc2626; }
+        .auth-box input { width: 100%; margin-bottom: 12px; }
+        .auth-box button { width: 100%; margin-bottom: 10px; }
+        .auth-toggle { font-size: 0.85rem; color: #888; cursor: pointer; text-decoration: underline; }
+        .auth-toggle:hover { color: #fff; }
+
         .chat-container { 
             width: 95%; 
             max-width: 900px; 
             height: 90vh; 
-            background: #ffffff; 
+            background: #0a0a0a; 
             border-radius: 12px; 
             display: flex; 
             flex-direction: column; 
             overflow: hidden; 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); 
-            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 25px rgba(255, 255, 255, 0.05); 
+            border: 1px solid #222222;
         }
         
         .chat-header { 
-            background: #ffffff; 
+            background: #121212; 
             padding: 18px 20px; 
-            text-align: center; 
-            font-weight: 600; 
-            font-size: 1.1rem;
-            border-bottom: 1px solid #e5e7eb; 
-            color: #111827;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700; 
+            font-size: 1.2rem;
+            border-bottom: 1px solid #222222; 
+            color: #ffffff;
+            letter-spacing: 1px;
         }
         
         .messages { 
@@ -38,55 +89,89 @@
             display: flex; 
             flex-direction: column; 
             gap: 12px; 
-            background: #fafafa;
+            background: #000000;
         }
         
         .msg { 
-            background: #ffffff; 
+            background: #121212; 
             padding: 12px 16px; 
             border-radius: 10px; 
-            max-width: 75%; 
+            max-width: 85%; 
             width: fit-content; 
             word-break: break-word; 
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #222222;
+            color: #e5e5e5;
+            position: relative;
         }
         
         .msg .name { 
             font-size: 0.85rem; 
-            color: #2563eb; 
+            color: #ef4444; 
             font-weight: 600; 
             margin-bottom: 4px; 
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
         }
+
+        .user-tag {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .tag-owner { background: #dc2626; color: #ffffff; }
+        .tag-admin { background: #ea580c; color: #ffffff; }
+        .tag-mod { background: #16a34a; color: #ffffff; }
+        .tag-default { background: #374151; color: #9ca3af; }
         
+        .mod-actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 6px;
+            font-size: 0.75rem;
+        }
+
+        .btn-mod {
+            background: #262626;
+            color: #aaa;
+            border: 1px solid #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-mod:hover { background: #333; color: #fff; }
+        .btn-danger:hover { background: #dc2626; color: #fff; }
+
         .input-area { 
             display: flex; 
             padding: 16px; 
-            background: #ffffff; 
+            background: #121212; 
             gap: 12px; 
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid #222222;
         }
         
         input { 
             padding: 12px 16px; 
-            border: 1px solid #d1d5db; 
+            border: 1px solid #222222; 
             border-radius: 8px; 
-            background: #ffffff; 
-            color: #111827; 
+            background: #0a0a0a; 
+            color: #ffffff; 
             outline: none; 
             font-size: 0.95rem;
             transition: border-color 0.2s;
         }
         
-        input:focus {
-            border-color: #2563eb;
-        }
+        input:focus { border-color: #ef4444; }
         
         button { 
             padding: 12px 24px; 
             border: none; 
             border-radius: 8px; 
-            background: #2563eb; 
+            background: #dc2626; 
             color: #ffffff; 
             font-weight: 600; 
             font-size: 0.95rem;
@@ -94,26 +179,50 @@
             transition: background 0.2s;
         }
         
-        button:hover { 
-            background: #1d4ed8; 
-        }
+        button:hover { background: #b91c1c; }
+        .btn-small { padding: 6px 12px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
+<div class="warning-popup" id="warning">
+    ⚠️ WARNING: NO RULES! CHAT AT YOUR OWN RISK! 💀
+</div>
+
+<!-- Auth Modal -->
+<div class="auth-overlay" id="authOverlay">
+    <div class="auth-box">
+        <h2 id="authTitle">🔑 Account Login</h2>
+        <input type="text" id="authUsername" placeholder="👤 Username (Permanent)" autocomplete="off">
+        <input type="text" id="authNickname" placeholder="🎭 Public Nickname" autocomplete="off" style="display:none;">
+        <input type="password" id="authPin" placeholder="🔒 4-Digit PIN Code" maxlength="8" autocomplete="off">
+        <input type="text" id="authRecoveryCode" placeholder="🔑 Recovery Code (For Resets Only)" style="display:none;" autocomplete="off">
+        
+        <button id="authPrimaryBtn">Login</button>
+        <p class="auth-toggle" id="authResetToggle" style="margin-bottom: 8px;">Forgot PIN? Reset with Code</p>
+        <p class="auth-toggle" id="authModeToggle">Need an account? Register</p>
+    </div>
+</div>
+
 <div class="chat-container">
-    <div class="chat-header">🌐 Global Chat Room</div>
+    <div class="chat-header">
+        <span>🔥 ANARCHY CHAT 💀</span>
+        <div>
+            <span id="currentUser" style="font-size: 0.85rem; color: #888; margin-right: 8px;"></span>
+            <button id="changeNickBtn" class="btn-small" style="background:#374151; margin-right: 5px;">Edit Nick</button>
+            <button id="logoutBtn" class="btn-small">Logout</button>
+        </div>
+    </div>
     <div class="messages" id="messages"></div>
     <form class="input-area" id="chatForm" onsubmit="return false;" autocomplete="off">
-        <input type="text" id="username" placeholder="Your name" style="max-width: 160px;" autocomplete="off" name="chat-user-name">
-        <input type="text" id="msgInput" placeholder="Type a message..." style="flex: 1;" autocomplete="off" name="chat-message-text">
-        <button id="sendBtn" type="button">Send</button>
+        <input type="text" id="msgInput" placeholder="💬 Type a message..." style="flex: 1;" autocomplete="off">
+        <button id="sendBtn" type="button">🚀 Send</button>
     </form>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, get, set, update, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDFzJR2Yg2Z5VS5PEX7S8fDBTS8J49hfJM",
@@ -129,20 +238,179 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const messagesRef = ref(db, 'global_messages');
+    const usersRef = ref(db, 'users');
 
+    // UI Elements
+    const authOverlay = document.getElementById('authOverlay');
+    const authTitle = document.getElementById('authTitle');
+    const authUsername = document.getElementById('authUsername');
+    const authNickname = document.getElementById('authNickname');
+    const authPin = document.getElementById('authPin');
+    const authRecoveryCode = document.getElementById('authRecoveryCode');
+    const authPrimaryBtn = document.getElementById('authPrimaryBtn');
+    const authModeToggle = document.getElementById('authModeToggle');
+    const authResetToggle = document.getElementById('authResetToggle');
+    const currentUserDisplay = document.getElementById('currentUser');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const changeNickBtn = document.getElementById('changeNickBtn');
+    
     const messagesContainer = document.getElementById('messages');
-    const usernameInput = document.getElementById('username');
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
 
-    function sendMessage() {
-        const name = usernameInput.value.trim() || "Anonymous";
+    let currentMode = 'login';
+    let activeUser = localStorage.getItem('anarchy_username') || null;
+    let currentUserData = { accessLevel: 1, tag: 'MEMBER', nickname: 'Anonymous' };
+
+    // 1. One-time Initialization of txt files in Database
+    async function initDatabaseFiles() {
+        const files = ['TTLS.txt', 'ACL.txt', 'LOGS.txt'];
+        for (const file of files) {
+            const fileRef = ref(db, `system_files/${file.replace('.', '_')}`);
+            const snap = await get(fileRef);
+            if (!snap.exists()) {
+                await set(fileRef, `[INITIALIZED ${file} AT ${new Date().toISOString()}]\n`);
+            }
+        }
+    }
+    initDatabaseFiles();
+
+    if (activeUser) {
+        authOverlay.style.display = 'none';
+        loadUserProfile(activeUser);
+    }
+
+    setTimeout(() => {
+        const warning = document.getElementById('warning');
+        if (warning) warning.remove();
+    }, 3500);
+
+    // Auth Mode Toggles
+    authModeToggle.addEventListener('click', () => {
+        if (currentMode === 'login') {
+            currentMode = 'register';
+            authTitle.textContent = '📝 Register Account';
+            authPrimaryBtn.textContent = 'Create Account';
+            authModeToggle.textContent = 'Already have an account? Login';
+            authNickname.style.display = 'block';
+            authRecoveryCode.style.display = 'none';
+        } else {
+            currentMode = 'login';
+            authTitle.textContent = '🔑 Account Login';
+            authPrimaryBtn.textContent = 'Login';
+            authModeToggle.textContent = 'Need an account? Register';
+            authNickname.style.display = 'none';
+            authRecoveryCode.style.display = 'none';
+        }
+    });
+
+    authResetToggle.addEventListener('click', () => {
+        currentMode = 'reset';
+        authTitle.textContent = '🔄 Reset PIN Code';
+        authPrimaryBtn.textContent = 'Update PIN';
+        authRecoveryCode.style.display = 'block';
+        authNickname.style.display = 'none';
+    });
+
+    authPrimaryBtn.addEventListener('click', async () => {
+        const username = authUsername.value.trim().toLowerCase();
+        const nickname = authNickname.value.trim() || username;
+        const pin = authPin.value.trim();
+        const recCode = authRecoveryCode.value.trim();
+
+        if (!username || !pin) return alert("Please fill required fields!");
+
+        const userRef = ref(db, `users/${username}`);
+
+        if (currentMode === 'register') {
+            const userSnap = await get(userRef);
+            if (userSnap.exists()) return alert("Username already taken!");
+
+            const recoveryCode = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // Standard registration without auto-owner privileges
+            await set(userRef, {
+                username: username,
+                nickname: nickname,
+                pin: pin,
+                recoveryCode: recoveryCode,
+                tag: "MEMBER",
+                accessLevel: 1
+            });
+
+            alert(`ACCOUNT CREATED!\n\nSave your Recovery Code:\n👉 ${recoveryCode}`);
+            loginUser(username);
+        } 
+        else if (currentMode === 'login') {
+            const snapshot = await get(userRef);
+            if (!snapshot.exists()) return alert("User does not exist!");
+            if (snapshot.val().pin !== pin) return alert("Incorrect PIN!");
+
+            loginUser(username);
+        }
+        else if (currentMode === 'reset') {
+            const snapshot = await get(userRef);
+            if (!snapshot.exists()) return alert("User does not exist!");
+            if (snapshot.val().recoveryCode !== recCode) return alert("Invalid Recovery Code!");
+
+            await update(userRef, { pin: pin });
+            alert("PIN updated! Logging in...");
+            loginUser(username);
+        }
+    });
+
+    function loginUser(username) {
+        activeUser = username;
+        localStorage.setItem('anarchy_username', username);
+        loadUserProfile(username);
+        authOverlay.style.display = 'none';
+    }
+
+    async function loadUserProfile(username) {
+        const snapshot = await get(ref(db, `users/${username}`));
+        if (snapshot.exists()) {
+            currentUserData = snapshot.val();
+            currentUserDisplay.textContent = `🎭 ${currentUserData.nickname} (@${username}) [${currentUserData.tag || 'MEMBER'}]`;
+        }
+    }
+
+    // Change Public Nickname
+    changeNickBtn.addEventListener('click', async () => {
+        const newNick = prompt("Enter new public nickname:", currentUserData.nickname);
+        if (newNick && newNick.trim() !== "") {
+            await update(ref(db, `users/${activeUser}`), { nickname: newNick.trim() });
+            loadUserProfile(activeUser);
+        }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('anarchy_username');
+        location.reload();
+    });
+
+    // Logging function targeting Firebase virtual txt logs
+    async function appendToTxtLog(filename, logMessage) {
+        const fileKey = filename.replace('.', '_');
+        const fileRef = ref(db, `system_files/${fileKey}`);
+        const snap = await get(fileRef);
+        const currentContent = snap.exists() ? snap.val() : "";
+        const updatedContent = currentContent + `[${new Date().toLocaleString()}] ${logMessage}\n`;
+        await set(fileRef, updatedContent);
+    }
+
+    // Messaging Logic
+    async function sendMessage() {
+        if (!activeUser) return alert("Log in first!");
         const text = msgInput.value.trim();
-        
         if (text === "") return;
 
+        await loadUserProfile(activeUser); // Ensure latest profile state
+
         push(messagesRef, {
-            username: name,
+            username: activeUser,
+            nickname: currentUserData.nickname || activeUser,
+            userTag: currentUserData.tag || "MEMBER",
+            accessLevel: currentUserData.accessLevel || 1,
             message: text,
             timestamp: Date.now()
         });
@@ -153,18 +421,92 @@
     sendBtn.addEventListener('click', sendMessage);
     msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 
-    onChildAdded(messagesRef, (data) => {
-        const msgData = data.val();
-        const msgElement = document.createElement('div');
-        msgElement.classList.add('msg');
-        
-        msgElement.innerHTML = `<div class="name">${escapeHTML(msgData.username)}</div><div>${escapeHTML(msgData.message)}</div>`;
-        messagesContainer.appendChild(msgElement);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    // Render Messages with Permissions Actions
+    onChildAdded(messagesRef, (data) => renderMessage(data.key, data.val()));
+
+    onChildChanged(messagesRef, (data) => {
+        const existingMsg = document.getElementById(`msg-${data.key}`);
+        if (existingMsg) {
+            const body = existingMsg.querySelector('.msg-body');
+            if (body) body.textContent = data.val().message;
+        }
     });
 
+    onChildRemoved(messagesRef, (data) => {
+        const existingMsg = document.getElementById(`msg-${data.key}`);
+        if (existingMsg) existingMsg.remove();
+    });
+
+    function renderMessage(msgId, msgData) {
+        const msgElement = document.createElement('div');
+        msgElement.classList.add('msg');
+        msgElement.id = `msg-${msgId}`;
+        
+        const tagText = msgData.userTag || "MEMBER";
+        const level = msgData.accessLevel || 1;
+        
+        let tagClass = 'tag-default';
+        if (level >= 10 || tagText.toUpperCase() === 'OWNER') tagClass = 'tag-owner';
+        else if (level >= 8 || tagText.toUpperCase() === 'ADMIN') tagClass = 'tag-admin';
+        else if (level >= 5 || tagText.toUpperCase() === 'MOD') tagClass = 'tag-mod';
+
+        // Action Toolbar according to Access Level
+        let modButtonsHtml = '';
+        const myLevel = currentUserData.accessLevel || 1;
+
+        if (myLevel >= 5) { // Mod / Edit / Delete access
+            modButtonsHtml += `<button class="btn-mod" onclick="editMsg('${msgId}')">Edit</button>`;
+            modButtonsHtml += `<button class="btn-mod btn-danger" onclick="deleteMsg('${msgId}')">Delete</button>`;
+        }
+        if (myLevel >= 8) { // Admin / Mute / BanIP access
+            modButtonsHtml += `<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}', 'MUTE')">Mute</button>`;
+            modButtonsHtml += `<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}', 'BANIP')">Ban IP</button>`;
+        }
+
+        msgElement.innerHTML = `
+            <div class="name">
+                <span>${escapeHTML(msgData.nickname)} <small style="color:#666">(@${escapeHTML(msgData.username)})</small></span>
+                <span class="user-tag ${tagClass}">[${escapeHTML(tagText)}]</span>
+            </div>
+            <div class="msg-body">${escapeHTML(msgData.message)}</div>
+            ${modButtonsHtml ? `<div class="mod-actions">${modButtonsHtml}</div>` : ''}
+        `;
+        
+        messagesContainer.appendChild(msgElement);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Global Action Handlers
+    window.editMsg = async (msgId) => {
+        const newText = prompt("Enter new message content:");
+        if (newText && newText.trim() !== "") {
+            await update(ref(db, `global_messages/${msgId}`), { message: newText.trim() });
+            await appendToTxtLog('LOGS.txt', `[EDIT] User @${activeUser} edited message ID ${msgId} to: "${newText.trim()}"`);
+        }
+    };
+
+    window.deleteMsg = async (msgId) => {
+        if (confirm("Delete this message?")) {
+            await remove(ref(db, `global_messages/${msgId}`));
+            await appendToTxtLog('LOGS.txt', `[DELETE] User @${activeUser} deleted message ID ${msgId}`);
+        }
+    };
+
+    window.punishUser = async (targetUser, actionType) => {
+        const duration = prompt(`Enter ${actionType} duration (e.g. 1h, 24h, Permanent):`, "24h");
+        if (!duration) return;
+
+        const reason = prompt(`Enter reason for ${actionType}:`, "Violating chat etiquette");
+        if (!reason) return;
+
+        const logEntry = `[${actionType}] Target: @${targetUser} | Duration: ${duration} | Reason: "${reason}" | Executor: @${activeUser}`;
+        await appendToTxtLog('LOGS.txt', logEntry);
+
+        alert(`Action Recorded in LOGS.txt!\n\n${logEntry}`);
+    };
+
     function escapeHTML(str) {
-        return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+        return str ? str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)) : '';
     }
 </script>
 
