@@ -1,6 +1,8 @@
 # Step 1: Build PhantomSDR-Plus from source
 FROM debian:bookworm AS builder
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
@@ -21,8 +23,10 @@ RUN cargo build --release
 # Step 2: Minimal runtime image
 FROM debian:bookworm-slim
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libfftw3-3 \
+    libfftw3-double3 \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
