@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Anarchy Chat ⚡</title>
+    <title>ANARCHY CHAT</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background: #000000; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; position: relative; }
@@ -15,10 +15,10 @@
             transform: translateX(-50%);
             background: #dc2626;
             color: #ffffff;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 10px 20px;
+            border-radius: 2px;
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+            box-shadow: 0 2px 10px rgba(220, 38, 38, 0.4);
             z-index: 1000;
             display: flex;
             align-items: center;
@@ -30,26 +30,32 @@
             to { opacity: 0; visibility: hidden; }
         }
 
-        .auth-overlay {
+        .auth-overlay, .banned-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             display: flex; justify-content: center; align-items: center;
             z-index: 2000;
         }
 
-        .auth-box {
+        .banned-overlay { z-index: 3000; }
+
+        .auth-box, .banned-box {
             background: #121212;
-            padding: 30px;
-            border-radius: 12px;
+            padding: 24px;
+            border-radius: 2px;
             border: 1px solid #222222;
             width: 90%;
             max-width: 400px;
             text-align: center;
-            box-shadow: 0 4px 25px rgba(220, 38, 38, 0.2);
         }
 
-        .auth-box h2 { margin-bottom: 15px; color: #dc2626; }
+        .banned-box { border-color: #dc2626; }
+        .banned-box h2 { color: #dc2626; margin-bottom: 10px; }
+        .banned-box p { color: #aaa; font-size: 0.9rem; margin-bottom: 5px; }
+        .time-left-text { color: #ef4444; font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; }
+
+        .auth-box h2 { margin-bottom: 15px; color: #dc2626; letter-spacing: 1px; }
         .auth-box input { width: 100%; margin-bottom: 12px; }
         .auth-box button { width: 100%; margin-bottom: 10px; }
         .auth-toggle { font-size: 0.85rem; color: #888; cursor: pointer; text-decoration: underline; }
@@ -60,22 +66,21 @@
             max-width: 900px; 
             height: 90vh; 
             background: #0a0a0a; 
-            border-radius: 12px; 
+            border-radius: 2px; 
             display: flex; 
             flex-direction: column; 
             overflow: hidden; 
-            box-shadow: 0 4px 25px rgba(255, 255, 255, 0.05); 
             border: 1px solid #222222;
         }
         
         .chat-header { 
             background: #121212; 
-            padding: 18px 20px; 
+            padding: 14px 20px; 
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-weight: 700; 
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             border-bottom: 1px solid #222222; 
             color: #ffffff;
             letter-spacing: 1px;
@@ -87,14 +92,14 @@
             overflow-y: auto; 
             display: flex; 
             flex-direction: column; 
-            gap: 12px; 
+            gap: 10px; 
             background: #000000;
         }
         
         .msg { 
             background: #121212; 
-            padding: 12px 16px; 
-            border-radius: 10px; 
+            padding: 10px 14px; 
+            border-radius: 2px; 
             max-width: 85%; 
             width: fit-content; 
             word-break: break-word; 
@@ -106,7 +111,7 @@
         .msg img.chat-image {
             max-width: 100%;
             max-height: 300px;
-            border-radius: 8px;
+            border-radius: 2px;
             margin-top: 8px;
             display: block;
             border: 1px solid #333;
@@ -125,8 +130,8 @@
 
         .user-tag {
             font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 1px 4px;
+            border-radius: 2px;
             font-weight: bold;
             text-transform: uppercase;
         }
@@ -139,7 +144,7 @@
         .mod-actions {
             margin-top: 8px;
             display: flex;
-            gap: 6px;
+            gap: 4px;
             font-size: 0.75rem;
         }
 
@@ -148,7 +153,7 @@
             color: #aaa;
             border: 1px solid #333;
             padding: 2px 6px;
-            border-radius: 4px;
+            border-radius: 2px;
             cursor: pointer;
         }
         .btn-mod:hover { background: #333; color: #fff; }
@@ -156,68 +161,79 @@
 
         .input-area { 
             display: flex; 
-            padding: 16px; 
+            padding: 12px; 
             background: #121212; 
-            gap: 12px; 
+            gap: 8px; 
             border-top: 1px solid #222222;
             align-items: center;
         }
         
-        input[type="text"] { 
-            padding: 12px 16px; 
+        input[type="text"], input[type="password"] { 
+            padding: 10px 14px; 
             border: 1px solid #222222; 
-            border-radius: 8px; 
+            border-radius: 2px; 
             background: #0a0a0a; 
             color: #ffffff; 
             outline: none; 
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: border-color 0.2s;
         }
         
-        input[type="text"]:focus { border-color: #ef4444; }
+        input[type="text"]:focus, input[type="password"]:focus { border-color: #ef4444; }
         
         .img-upload-btn {
             background: #222222;
-            color: #fff;
-            padding: 12px;
-            border-radius: 8px;
+            color: #ccc;
+            padding: 10px 14px;
+            border-radius: 2px;
             cursor: pointer;
             border: 1px solid #333;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
-        .img-upload-btn:hover { background: #333; }
+        .img-upload-btn:hover { background: #333; color: #fff; }
 
         button { 
-            padding: 12px 24px; 
+            padding: 10px 18px; 
             border: none; 
-            border-radius: 8px; 
+            border-radius: 2px; 
             background: #dc2626; 
             color: #ffffff; 
             font-weight: 600; 
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             cursor: pointer; 
             transition: background 0.2s;
         }
         
         button:hover { background: #b91c1c; }
-        .btn-small { padding: 6px 12px; font-size: 0.8rem; }
+        .btn-small { padding: 4px 10px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="warning-popup" id="warning">
-    ⚠️ WARNING: NO RULES! CHAT AT YOUR OWN RISK! 💀
+    WARNING: NO RULES! CHAT AT YOUR OWN RISK!
+</div>
+
+<div class="banned-overlay" id="bannedOverlay" style="display: none;">
+    <div class="banned-box">
+        <h2>ACCESS DENIED</h2>
+        <p id="banReasonText">You have been banned from Anarchy Chat.</p>
+        <div id="banTimeLeft" class="time-left-text">Calculating...</div>
+        <button id="bannedLogoutBtn">Logout</button>
+    </div>
 </div>
 
 <div class="auth-overlay" id="authOverlay">
     <div class="auth-box">
-        <h2 id="authTitle">🔑 Account Login</h2>
-        <input type="text" id="authUsername" placeholder="👤 Username (Permanent)" autocomplete="off">
-        <input type="text" id="authNickname" placeholder="🎭 Public Nickname" autocomplete="off" style="display:none;">
-        <input type="password" id="authPin" placeholder="🔒 4-Digit PIN Code" maxlength="8" autocomplete="off">
-        <input type="text" id="authRecoveryCode" placeholder="🔑 Recovery Code (For Resets Only)" style="display:none;" autocomplete="off">
+        <h2 id="authTitle">Account Login</h2>
+        <input type="text" id="authUsername" placeholder="Username (Permanent)" autocomplete="off">
+        <input type="text" id="authNickname" placeholder="Public Nickname" autocomplete="off" style="display:none;">
+        <input type="password" id="authPin" placeholder="4-Digit PIN Code" maxlength="8" autocomplete="off">
+        <input type="text" id="authRecoveryCode" placeholder="Recovery Code (For Resets Only)" style="display:none;" autocomplete="off">
         
         <button id="authPrimaryBtn">Login</button>
         <p class="auth-toggle" id="authResetToggle" style="margin-bottom: 8px;">Forgot PIN? Reset with Code</p>
@@ -227,7 +243,7 @@
 
 <div class="chat-container">
     <div class="chat-header">
-        <span>🔥 ANARCHY CHAT 💀</span>
+        <span>ANARCHY CHAT</span>
         <div>
             <span id="currentUser" style="font-size: 0.85rem; color: #888; margin-right: 8px;"></span>
             <button id="changeNickBtn" class="btn-small" style="background:#374151; margin-right: 5px;">Edit Nick</button>
@@ -237,17 +253,17 @@
     <div class="messages" id="messages"></div>
     <form class="input-area" id="chatForm" onsubmit="return false;" autocomplete="off">
         <label class="img-upload-btn" title="Upload Image">
-            📷
+            IMG
             <input type="file" id="imgInput" accept="image/*" style="display: none;">
         </label>
-        <input type="text" id="msgInput" placeholder="💬 Type a message..." style="flex: 1;" autocomplete="off">
-        <button id="sendBtn" type="button">🚀 Send</button>
+        <input type="text" id="msgInput" placeholder="Type a message..." style="flex: 1;" autocomplete="off">
+        <button id="sendBtn" type="button">Send</button>
     </form>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, get, set, update, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, get, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDFzJR2Yg2Z5VS5PEX7S8fDBTS8J49hfJM",
@@ -265,6 +281,11 @@
     const messagesRef = ref(db, 'global_messages');
 
     const authOverlay = document.getElementById('authOverlay');
+    const bannedOverlay = document.getElementById('bannedOverlay');
+    const banReasonText = document.getElementById('banReasonText');
+    const banTimeLeft = document.getElementById('banTimeLeft');
+    const bannedLogoutBtn = document.getElementById('bannedLogoutBtn');
+    
     const authTitle = document.getElementById('authTitle');
     const authUsername = document.getElementById('authUsername');
     const authNickname = document.getElementById('authNickname');
@@ -284,7 +305,8 @@
 
     let currentMode = 'login';
     let activeUser = localStorage.getItem('anarchy_username') || null;
-    let currentUserData = { accessLevel: 1, tag: 'MEMBER', nickname: 'Anonymous' };
+    let currentUserData = { accessLevel: 1, tag: 'MEMBER', nickname: 'Anonymous', muted: false, banned: false };
+    let banTimerInterval = null;
 
     async function initDatabaseFiles() {
         const files = ['TTLS.txt', 'ACL.txt', 'LOGS.txt'];
@@ -298,26 +320,81 @@
     }
     initDatabaseFiles();
 
-    async function loadUserProfile(username) {
-        const snapshot = await get(ref(db, `users/${username}`));
-        if (snapshot.exists()) {
-            currentUserData = snapshot.val();
-            // Ensure access level comparison converts to integer
-            currentUserData.accessLevel = parseInt(currentUserData.accessLevel || 1);
-            currentUserDisplay.textContent = `🎭 ${currentUserData.nickname} (@${username}) [${currentUserData.tag || 'MEMBER'}] Lvl:${currentUserData.accessLevel}`;
-            
-            // Re-render UI buttons once access level is retrieved
-            document.querySelectorAll('.msg').forEach(el => el.remove());
-            const msgSnap = await get(messagesRef);
-            if (msgSnap.exists()) {
-                Object.entries(msgSnap.val()).forEach(([key, val]) => renderMessage(key, val));
+    function formatTimeLeft(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const d = Math.floor(totalSeconds / 86400);
+        const h = Math.floor((totalSeconds % 86400) / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
+        const s = totalSeconds % 60;
+        let res = "";
+        if (d > 0) res += d + "d ";
+        if (h > 0) res += h + "h ";
+        if (m > 0) res += m + "m ";
+        res += s + "s";
+        return res.trim();
+    }
+
+    function checkBanStatus() {
+        if (banTimerInterval) clearInterval(banTimerInterval);
+
+        if (currentUserData.banned) {
+            if (currentUserData.banExpires !== -1 && Date.now() > currentUserData.banExpires) {
+                // Ban expired automatically
+                update(ref(db, `users/${activeUser}`), { banned: false });
+                bannedOverlay.style.display = 'none';
+                return;
             }
+
+            banReasonText.textContent = `Reason: ${currentUserData.banReason || 'Banned by admin'}`;
+            bannedOverlay.style.display = 'flex';
+
+            if (currentUserData.banExpires === -1) {
+                banTimeLeft.textContent = "Time Left: Permanent";
+            } else {
+                banTimerInterval = setInterval(updateBanTimer, 1000);
+                updateBanTimer(); 
+            }
+        } else {
+            bannedOverlay.style.display = 'none';
         }
+    }
+
+    function updateBanTimer() {
+        if (!currentUserData.banned || currentUserData.banExpires === -1) return;
+        const remaining = currentUserData.banExpires - Date.now();
+        if (remaining <= 0) {
+            clearInterval(banTimerInterval);
+            checkBanStatus();
+        } else {
+            banTimeLeft.textContent = "Time Left: " + formatTimeLeft(remaining);
+        }
+    }
+
+    function isMuted() {
+        if (!currentUserData.muted) return false;
+        if (currentUserData.muteExpires !== -1 && Date.now() > currentUserData.muteExpires) {
+            // Mute expired automatically
+            update(ref(db, `users/${activeUser}`), { muted: false });
+            currentUserData.muted = false; 
+            return false;
+        }
+        return true;
+    }
+
+    function listenToUserStatus(username) {
+        onValue(ref(db, `users/${username}`), (snapshot) => {
+            if (snapshot.exists()) {
+                currentUserData = snapshot.val();
+                currentUserData.accessLevel = parseInt(currentUserData.accessLevel || 1);
+                currentUserDisplay.textContent = `${currentUserData.nickname} (@${username}) [${currentUserData.tag || 'MEMBER'}] Lvl:${currentUserData.accessLevel}`;
+                checkBanStatus();
+            }
+        });
     }
 
     if (activeUser) {
         authOverlay.style.display = 'none';
-        loadUserProfile(activeUser);
+        listenToUserStatus(activeUser);
     }
 
     setTimeout(() => {
@@ -328,14 +405,14 @@
     authModeToggle.addEventListener('click', () => {
         if (currentMode === 'login') {
             currentMode = 'register';
-            authTitle.textContent = '📝 Register Account';
+            authTitle.textContent = 'Register Account';
             authPrimaryBtn.textContent = 'Create Account';
             authModeToggle.textContent = 'Already have an account? Login';
             authNickname.style.display = 'block';
             authRecoveryCode.style.display = 'none';
         } else {
             currentMode = 'login';
-            authTitle.textContent = '🔑 Account Login';
+            authTitle.textContent = 'Account Login';
             authPrimaryBtn.textContent = 'Login';
             authModeToggle.textContent = 'Need an account? Register';
             authNickname.style.display = 'none';
@@ -345,7 +422,7 @@
 
     authResetToggle.addEventListener('click', () => {
         currentMode = 'reset';
-        authTitle.textContent = '🔄 Reset PIN Code';
+        authTitle.textContent = 'Reset PIN Code';
         authPrimaryBtn.textContent = 'Update PIN';
         authRecoveryCode.style.display = 'block';
         authNickname.style.display = 'none';
@@ -373,10 +450,12 @@
                 pin: pin,
                 recoveryCode: recoveryCode,
                 tag: "MEMBER",
-                accessLevel: 1
+                accessLevel: 1,
+                muted: false,
+                banned: false
             });
 
-            alert(`ACCOUNT CREATED!\n\nSave your Recovery Code:\n👉 ${recoveryCode}`);
+            alert(`ACCOUNT CREATED!\n\nSave your Recovery Code:\n${recoveryCode}`);
             loginUser(username);
         } 
         else if (currentMode === 'login') {
@@ -400,7 +479,7 @@
     function loginUser(username) {
         activeUser = username;
         localStorage.setItem('anarchy_username', username);
-        loadUserProfile(username);
+        listenToUserStatus(username);
         authOverlay.style.display = 'none';
     }
 
@@ -408,14 +487,16 @@
         const newNick = prompt("Enter new public nickname:", currentUserData.nickname);
         if (newNick && newNick.trim() !== "") {
             await update(ref(db, `users/${activeUser}`), { nickname: newNick.trim() });
-            loadUserProfile(activeUser);
         }
     });
 
-    logoutBtn.addEventListener('click', () => {
+    logoutBtn.addEventListener('click', performLogout);
+    bannedLogoutBtn.addEventListener('click', performLogout);
+
+    function performLogout() {
         localStorage.removeItem('anarchy_username');
         location.reload();
-    });
+    }
 
     async function appendToTxtLog(filename, logMessage) {
         const fileKey = filename.replace('.', '_');
@@ -426,8 +507,14 @@
         await set(fileRef, updatedContent);
     }
 
-    // Image Upload Conversion
     imgInput.addEventListener('change', async (e) => {
+        if (isMuted()) {
+            const left = currentUserData.muteExpires === -1 ? "Permanent" : formatTimeLeft(currentUserData.muteExpires - Date.now());
+            alert(`You are muted! Time left: ${left}`);
+            imgInput.value = "";
+            return;
+        }
+
         const file = e.target.files[0];
         if (!file) return;
 
@@ -455,6 +542,11 @@
 
     async function sendMessage() {
         if (!activeUser) return alert("Log in first!");
+        if (isMuted()) {
+            const left = currentUserData.muteExpires === -1 ? "Permanent" : formatTimeLeft(currentUserData.muteExpires - Date.now());
+            return alert(`You are muted! Time left: ${left}`);
+        }
+        
         const text = msgInput.value.trim();
         if (text === "") return;
 
@@ -547,16 +639,28 @@
     };
 
     window.punishUser = async (targetUser, actionType) => {
-        const duration = prompt(`Enter ${actionType} duration (e.g. 1h, 24h, Permanent):`, "24h");
-        if (!duration) return;
+        const durationInput = prompt(`Enter ${actionType} duration in HOURS (0 for Permanent, 0.5 for 30m):`, "24");
+        if (durationInput === null) return;
+        
+        const hours = parseFloat(durationInput);
+        if (isNaN(hours) || hours < 0) return alert("Invalid duration. Please enter a valid number.");
 
         const reason = prompt(`Enter reason for ${actionType}:`, "Violating chat etiquette");
-        if (!reason) return;
+        if (reason === null) return;
 
-        const logEntry = `[${actionType}] Target: @${targetUser} | Duration: ${duration} | Reason: "${reason}" | Executor: @${activeUser}`;
+        const targetRef = ref(db, `users/${targetUser}`);
+        const expiresAt = hours === 0 ? -1 : Date.now() + (hours * 3600 * 1000);
+
+        if (actionType === 'MUTE') {
+            await update(targetRef, { muted: true, muteReason: reason, muteExpires: expiresAt });
+        } else if (actionType === 'BANIP') {
+            await update(targetRef, { banned: true, banReason: reason, banExpires: expiresAt });
+        }
+
+        const logEntry = `[${actionType}] Target: @${targetUser} | Hours: ${hours === 0 ? 'Perm' : hours} | Reason: "${reason}" | Executor: @${activeUser}`;
         await appendToTxtLog('LOGS.txt', logEntry);
 
-        alert(`Action Recorded in LOGS.txt!\n\n${logEntry}`);
+        alert(`${actionType} applied to @${targetUser} and logged!`);
     };
 
     function escapeHTML(str) {
