@@ -9,10 +9,8 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
 html,body{width:100%;min-height:100%;background:#050505;color:#d4d4d4;font-size:.85rem}
 .app{width:100vw;min-height:100dvh;height:100dvh;display:flex;background:#050505}
-
 .sdr-panel{width:var(--sdr-width);height:100%;background:#000;overflow:hidden;border-right:1px solid #1f1f1f;flex-shrink:0}
 .sdr-frame{width:100%;height:100%;border:0;display:block;background:#000}
-
 .chat-panel{width:var(--chat-width);min-width:280px;height:100%;background:#080808;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
 
 .chat-header{padding:11px;border-bottom:1px solid #1f1f1f;background:#0a0a0a}
@@ -25,6 +23,7 @@ html,body{width:100%;min-height:100%;background:#050505;color:#d4d4d4;font-size:
 .msg img.chat-image{max-width:100%;max-height:var(--image-height);display:block;margin-top:6px;border:1px solid #222;border-radius:2px;object-fit:contain}
 .msg .name{font-size:.72rem;color:#ef4444;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .msg-body{overflow-wrap:anywhere}
+
 .user-tag{font-size:.55rem;padding:2px 4px;border-radius:2px;font-weight:bold;text-transform:uppercase;letter-spacing:.3px}
 .tag-owner{background:#991b1b;color:#fff}.tag-admin{background:#c2410c;color:#fff}.tag-mod{background:#15803d;color:#fff}.tag-default{background:#1f2937;color:#9ca3af}
 
@@ -56,7 +55,34 @@ button:hover{background:#7f1d1d}.btn-small{padding:4px 6px;font-size:.55rem}
 
 .messages::-webkit-scrollbar{width:5px}.messages::-webkit-scrollbar-track{background:#050505}.messages::-webkit-scrollbar-thumb{background:#222}.messages::-webkit-scrollbar-thumb:hover{background:#333}
 
-/* ===== PHONE ===== */
+/* ===== SPOILERS ===== */
+.spoiler{
+position:relative;display:inline-block;background:#111;color:#111;border-radius:3px;
+cursor:pointer;padding:1px 5px;margin:1px 0;overflow:hidden;vertical-align:middle;
+}
+.spoiler::after{
+content:"SPOILER • CLICK TO REVEAL";position:absolute;inset:0;display:flex;align-items:center;
+justify-content:center;background:rgba(10,10,10,.92);color:#888;font-size:.58rem;
+font-weight:bold;letter-spacing:.4px;white-space:nowrap;
+}
+.spoiler.revealed{background:transparent;color:inherit}
+.spoiler.revealed::after{content:"CLICK TO RE-BLUR";background:rgba(0,0,0,.65);color:#ddd}
+.spoiler-image-wrap{
+position:relative;display:block;max-width:100%;margin-top:6px;border:1px solid #222;
+border-radius:2px;overflow:hidden;background:#050505;cursor:pointer
+}
+.spoiler-image-wrap img{
+width:100%;max-height:var(--image-height);display:block;object-fit:contain;
+filter:blur(32px);transform:scale(1.08);transition:filter .2s,transform .2s
+}
+.spoiler-image-wrap::after{
+content:"SPOILER IMAGE • CLICK TO REVEAL";position:absolute;inset:0;display:flex;
+align-items:center;justify-content:center;background:rgba(0,0,0,.58);color:#ddd;
+font-size:.65rem;font-weight:bold;letter-spacing:.5px;text-align:center
+}
+.spoiler-image-wrap.revealed img{filter:none;transform:none}
+.spoiler-image-wrap.revealed::after{content:"CLICK TO RE-BLUR";background:rgba(0,0,0,.55);font-size:.65rem}
+
 @media(max-width:900px){
 html,body{width:100%;height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
 .app{width:100%;height:auto;min-height:100dvh;display:flex;flex-direction:column;overflow:visible}
@@ -64,12 +90,8 @@ html,body{width:100%;height:auto;min-height:100%;overflow-x:hidden;overflow-y:au
 .sdr-frame{width:100%;height:100%}
 .chat-panel{width:100%;height:var(--mobile-chat-height);min-width:0;min-height:320px;flex-shrink:0}
 }
-
-/* ===== VERY SMALL PHONES ===== */
 @media(max-width:500px){
-.chat-panel{min-height:360px}
-.header-title{font-size:.72rem}
-.msg{font-size:calc(var(--chat-font) - .02rem)}
+.chat-panel{min-height:360px}.header-title{font-size:.72rem}.msg{font-size:calc(var(--chat-font) - .02rem)}
 }
 </style>
 </head>
@@ -79,11 +101,7 @@ html,body{width:100%;height:auto;min-height:100%;overflow-x:hidden;overflow-y:au
 <div class="app">
 
 <section class="sdr-panel">
-<iframe class="sdr-frame"
-src="https://sdrproxy.xghvaladze.workers.dev/"
-allow="autoplay;microphone;fullscreen"
-referrerpolicy="no-referrer"
-title="OpenWebRX WebSDR"></iframe>
+<iframe class="sdr-frame" src="https://sdrproxy.xghvaladze.workers.dev/" allow="autoplay;microphone;fullscreen" referrerpolicy="no-referrer" title="OpenWebRX WebSDR"></iframe>
 </section>
 
 <aside class="chat-panel">
@@ -138,7 +156,7 @@ title="OpenWebRX WebSDR"></iframe>
 
 /* ================= CONFIG ================= */
 const CONFIG={
-VERSION:"1.0.4A",
+VERSION:"1.0.6A",
 SDR_WIDTH:"85%",
 CHAT_WIDTH:"15%",
 CHAT_FONT_SIZE:"0.80rem",
@@ -146,7 +164,8 @@ IMAGE_HEIGHT:"220px",
 WARNING_TIME:"3s",
 MOBILE_SDR_HEIGHT:"70dvh",
 MOBILE_CHAT_HEIGHT:"30dvh",
-MAX_IMAGE_SIZE:2*1024*1024
+MAX_IMAGE_SIZE:2*1024*1024,
+SPOILER_IMAGE_BLUR:"32px"
 };
 
 document.documentElement.style.setProperty("--sdr-width",CONFIG.SDR_WIDTH);
@@ -220,7 +239,7 @@ else{banTimerInterval=setInterval(updateBanTimer,1000);updateBanTimer();}
 function updateBanTimer(){
 if(!currentUserData.banned||currentUserData.banExpires===-1)return;
 const remaining=currentUserData.banExpires-Date.now();
-if(remaining<=0){clearInterval(banTimerInterval);checkBanStatus();}
+if(remaining<=0){clearInterval(banTimerInterval);checkBanStatus()}
 else banTimeLeft.textContent="T-Minus: "+formatTimeLeft(remaining);
 }
 
@@ -293,7 +312,6 @@ if(newNick&&newNick.trim()!=="")await update(ref(db,`users/${activeUser}`),{nick
 
 logoutBtn.addEventListener("click",performLogout);
 bannedLogoutBtn.addEventListener("click",performLogout);
-
 function performLogout(){localStorage.removeItem("anarchy_username");location.reload()}
 
 /* ================= LOGGING ================= */
@@ -303,74 +321,171 @@ const currentContent=snap.exists()?snap.val():"";
 await set(fileRef,currentContent+`[${new Date().toLocaleString()}] ${logMessage}\n`);
 }
 
-/* ================= IMAGE ================= */
+/* ================= SPOILERS ================= */
+function confirmSpoiler(){
+return confirm("Spoiler this content?\n\nSpoilered content will be heavily blurred until the viewer confirms that they want to reveal it.");
+}
+
+function revealWarning(){
+return confirm("Are you sure to unspoiler this?\n\nWe are not responsible for what you see.");
+}
+
+function escapeAttr(str){
+return str.replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+}
+
+function renderSpoilerText(text){
+let result="",last=0,re=/\|\|([\s\S]*?)\|\|/g,m;
+while((m=re.exec(text))){
+result+=escapeHTML(text.slice(last,m.index));
+const content=escapeHTML(m[1]);
+result+=`<span class="spoiler" onclick="toggleTextSpoiler(this)">${content}</span>`;
+last=m.index+m[0].length;
+}
+result+=escapeHTML(text.slice(last));
+return result;
+}
+
+window.toggleTextSpoiler=el=>{
+if(!el.classList.contains("revealed")){
+if(revealWarning())el.classList.add("revealed");
+}else el.classList.remove("revealed");
+};
+
+window.toggleImageSpoiler=el=>{
+if(!el.classList.contains("revealed")){
+if(revealWarning())el.classList.add("revealed");
+}else el.classList.remove("revealed");
+};
+
+/* ================= IMAGE UPLOAD ================= */
 imgInput.addEventListener("change",async e=>{
 if(isMuted()){
 const left=currentUserData.muteExpires===-1?"PERMANENT":formatTimeLeft(currentUserData.muteExpires-Date.now());
 alert(`TX BLOCKED (Muted) | Clear in: ${left}`);imgInput.value="";return;
 }
-const file=e.target.files[0];if(!file)return;
-if(file.size>CONFIG.MAX_IMAGE_SIZE){alert("ERR: Payload exceeds 2MB limit.");imgInput.value="";return}
+
+const file=e.target.files[0];
+if(!file)return;
+
+if(file.size>CONFIG.MAX_IMAGE_SIZE){
+alert("ERR: Payload exceeds 2MB limit.");imgInput.value="";return;
+}
+
+const spoiler=confirmSpoiler();
+if(!spoiler&&!confirm("Send image without spoiler?")){imgInput.value="";return}
+
 const reader=new FileReader();
-reader.onload=async()=>await push(messagesRef,{username:activeUser,nickname:currentUserData.nickname||activeUser,
-userTag:currentUserData.tag||"MEMBER",accessLevel:currentUserData.accessLevel||1,message:"",
-image:reader.result,timestamp:Date.now()});
-reader.readAsDataURL(file);imgInput.value="";
+reader.onload=async()=>{
+await push(messagesRef,{
+username:activeUser,
+nickname:currentUserData.nickname||activeUser,
+userTag:currentUserData.tag||"MEMBER",
+accessLevel:currentUserData.accessLevel||1,
+message:"",
+image:reader.result,
+spoiler:spoiler,
+timestamp:Date.now()
+});
+};
+
+reader.readAsDataURL(file);
+imgInput.value="";
 });
 
 /* ================= MESSAGES ================= */
 async function sendMessage(){
 if(!activeUser)return alert("ERR: Not authenticated.");
+
 if(isMuted()){
 const left=currentUserData.muteExpires===-1?"PERMANENT":formatTimeLeft(currentUserData.muteExpires-Date.now());
 return alert(`TX BLOCKED (Muted) | Clear in: ${left}`);
 }
-const text=msgInput.value.trim();if(text==="")return;
-await push(messagesRef,{username:activeUser,nickname:currentUserData.nickname||activeUser,
-userTag:currentUserData.tag||"MEMBER",accessLevel:currentUserData.accessLevel||1,message:text,timestamp:Date.now()});
+
+const text=msgInput.value.trim();
+if(text==="")return;
+
+await push(messagesRef,{
+username:activeUser,
+nickname:currentUserData.nickname||activeUser,
+userTag:currentUserData.tag||"MEMBER",
+accessLevel:currentUserData.accessLevel||1,
+message:text,
+timestamp:Date.now()
+});
+
 msgInput.value="";
 }
 
 sendBtn.addEventListener("click",sendMessage);
 msgInput.addEventListener("keypress",e=>{if(e.key==="Enter")sendMessage()});
+
 onChildAdded(messagesRef,data=>renderMessage(data.key,data.val()));
 
 onChildChanged(messagesRef,data=>{
 const existingMsg=document.getElementById(`msg-${data.key}`);
-if(existingMsg){const body=existingMsg.querySelector(".msg-body");if(body)body.textContent=data.val().message;}
+if(existingMsg){
+const body=existingMsg.querySelector(".msg-body");
+if(body)body.innerHTML=renderSpoilerText(data.val().message||"");
+}
 });
 
 onChildRemoved(messagesRef,data=>{
-const existingMsg=document.getElementById(`msg-${data.key}`);if(existingMsg)existingMsg.remove();
+const existingMsg=document.getElementById(`msg-${data.key}`);
+if(existingMsg)existingMsg.remove();
 });
 
 /* ================= RENDER ================= */
 function renderMessage(msgId,msgData){
 if(document.getElementById(`msg-${msgId}`))return;
-const msgElement=document.createElement("div");msgElement.classList.add("msg");msgElement.id=`msg-${msgId}`;
+
+const msgElement=document.createElement("div");
+msgElement.classList.add("msg");
+msgElement.id=`msg-${msgId}`;
+
 const tagText=msgData.userTag||"MEMBER",level=parseInt(msgData.accessLevel||1);
 let tagClass="tag-default";
+
 if(level>=10||tagText.toUpperCase()==="OWNER")tagClass="tag-owner";
 else if(level>=8||tagText.toUpperCase()==="ADMIN")tagClass="tag-admin";
 else if(level>=5||tagText.toUpperCase()==="MOD")tagClass="tag-mod";
 
 let modButtonsHtml="",myLevel=parseInt(currentUserData.accessLevel||1);
+
 if(myLevel>=5){
 modButtonsHtml+=`<button class="btn-mod" onclick="editMsg('${msgId}')">EDIT</button>`;
 modButtonsHtml+=`<button class="btn-mod btn-danger" onclick="deleteMsg('${msgId}')">DEL</button>`;
 }
+
 if(myLevel>=8){
-modButtonsHtml+=`<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}','MUTE')">MUTE</button>`;
-modButtonsHtml+=`<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}','BANIP')">BAN</button>`;
+modButtonsHtml+=`<button class="btn-mod btn-danger" onclick="punishUser('${escapeAttr(msgData.username)}','MUTE')">MUTE</button>`;
+modButtonsHtml+=`<button class="btn-mod btn-danger" onclick="punishUser('${escapeAttr(msgData.username)}','BANIP')">BAN</button>`;
 }
 
-const imageHtml=msgData.image?`<img src="${msgData.image}" class="chat-image">`:"";
+let imageHtml="";
+
+if(msgData.image){
+if(msgData.spoiler){
+imageHtml=`
+<div class="spoiler-image-wrap" onclick="toggleImageSpoiler(this)">
+<img src="${msgData.image}" class="chat-image" alt="Spoiler image">
+</div>`;
+}else{
+imageHtml=`<img src="${msgData.image}" class="chat-image" alt="Image">`;
+}
+}
+
 msgElement.innerHTML=`
-<div class="name"><span>${escapeHTML(msgData.nickname)} <small style="color:#555">(@${escapeHTML(msgData.username)})</small></span>
-<span class="user-tag ${tagClass}">[${escapeHTML(tagText)}]</span></div>
-${msgData.message?`<div class="msg-body">${escapeHTML(msgData.message)}</div>`:""}
-${imageHtml}${modButtonsHtml?`<div class="mod-actions">${modButtonsHtml}</div>`:""}`;
-messagesContainer.appendChild(msgElement);messagesContainer.scrollTop=messagesContainer.scrollHeight;
+<div class="name">
+<span>${escapeHTML(msgData.nickname)} <small style="color:#555">(@${escapeHTML(msgData.username)})</small></span>
+<span class="user-tag ${tagClass}">[${escapeHTML(tagText)}]</span>
+</div>
+${msgData.message?`<div class="msg-body">${renderSpoilerText(msgData.message)}</div>`:""}
+${imageHtml}
+${modButtonsHtml?`<div class="mod-actions">${modButtonsHtml}</div>`:""}`;
+
+messagesContainer.appendChild(msgElement);
+messagesContainer.scrollTop=messagesContainer.scrollHeight;
 }
 
 /* ================= MODERATION ================= */
@@ -390,11 +505,19 @@ await appendToTxtLog("LOGS.txt",`[DELETE] User @${activeUser} deleted message ID
 window.punishUser=async(targetUser,actionType)=>{
 const durationInput=prompt(`Set ${actionType} duration in HOURS (0 = Perm, 0.5 = 30m):`,"24");
 if(durationInput===null)return;
-const hours=parseFloat(durationInput);if(isNaN(hours)||hours<0)return alert("ERR: Invalid duration.");
-const reason=prompt(`Reason for ${actionType}:`,"TOS Violation");if(reason===null)return;
-const targetRef=ref(db,`users/${targetUser}`),expiresAt=hours===0?-1:Date.now()+hours*3600*1000;
+
+const hours=parseFloat(durationInput);
+if(isNaN(hours)||hours<0)return alert("ERR: Invalid duration.");
+
+const reason=prompt(`Reason for ${actionType}:`,"TOS Violation");
+if(reason===null)return;
+
+const targetRef=ref(db,`users/${targetUser}`);
+const expiresAt=hours===0?-1:Date.now()+hours*3600*1000;
+
 if(actionType==="MUTE")await update(targetRef,{muted:true,muteReason:reason,muteExpires:expiresAt});
 else if(actionType==="BANIP")await update(targetRef,{banned:true,banReason:reason,banExpires:expiresAt});
+
 await appendToTxtLog("LOGS.txt",`[${actionType}] Target: @${targetUser} | Hrs: ${hours===0?"Perm":hours} | Reason: "${reason}" | Exec: @${activeUser}`);
 alert(`EXECUTION COMPLETE: ${actionType} applied to @${targetUser}`);
 };
@@ -403,7 +526,7 @@ alert(`EXECUTION COMPLETE: ${actionType} applied to @${targetUser}`);
 function escapeHTML(str){
 return str?str.replace(/[&<>'"]/g,tag=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[tag]||tag)):"";
 }
-</script>
 
+</script>
 </body>
 </html>
