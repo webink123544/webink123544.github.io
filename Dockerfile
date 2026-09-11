@@ -16,6 +16,7 @@ RUN cargo build --release
 # Step 2: Minimal runtime image
 FROM debian:bookworm-slim
 
+# Added apt-get update here to fix exit code 100
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libfftw3-3 \
     ca-certificates \
