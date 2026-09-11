@@ -4,7 +4,7 @@
     "simtx": {
       "name": "SimTX SDR",
       "type": "rtl_tcp",
-      "remote": "bore.pub:3517",
+      "remote": "bore.pub:50909",
       "profiles": {
         "vlf_zero": {
           "name": "0 kHz - 250 kHz (VLF / ELF)",
