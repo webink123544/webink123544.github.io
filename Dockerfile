@@ -1,3 +1,4 @@
 FROM jketterl/openwebrx:latest
 COPY settings.json /var/lib/openwebrx/settings.json
-RUN printf "tester1236\ntester1236\n" | python3 /opt/openwebrx/openwebrx-admin.py adduser admin
+RUN ADMIN_BIN=$(find / -name "openwebrx-admin*" 2>/dev/null | head -n 1) && \
+    printf "tester1236\ntester1236\n" | $ADMIN_BIN adduser admin
