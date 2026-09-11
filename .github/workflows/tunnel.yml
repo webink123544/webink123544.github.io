@@ -15,5 +15,5 @@ jobs:
 
       - name: Start TCP Tunnel
         run: |
-          socat TCP4-LISTEN:1240,fork,reuseaddr,nodelay TCP4:193.24.208.6:1240,nodelay &
+          socat TCP4-LISTEN:1240,fork,reuseaddr,nodelay TCP4:argon.simtx.net:1240,nodelay &
           bore local 1240 --to bore.pub
