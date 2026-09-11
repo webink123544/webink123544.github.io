@@ -1,13 +1,18 @@
 # Step 1: Build PhantomSDR-Plus from source
-FROM rust:1-slim-bookworm AS builder
+FROM debian:bookworm AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
-    clang \
+    build-essential \
     cmake \
     pkg-config \
     libfftw3-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Rust via rustup
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /build
 RUN git clone https://github.com/PhantomSDR/PhantomSDR-Plus.git .
@@ -16,7 +21,6 @@ RUN cargo build --release
 # Step 2: Minimal runtime image
 FROM debian:bookworm-slim
 
-# Added apt-get update here to fix exit code 100
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libfftw3-3 \
     ca-certificates \
