@@ -3,9 +3,9 @@
   "port": 8080,
   "sources": [
     {
-      "name": "SimTX Source",
+      "name": "SimTX Argon Node",
       "type": "rtl_tcp",
-      "address": "193.24.208.6",
+      "address": "argon.simtx.net",
       "port": 1240,
       "sample_rate": 250000,
       "center_freq": 4625000
