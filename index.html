@@ -1,28 +1,27 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Anarchy Relay</title>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-html,body{width:100%;height:100%;overflow:hidden;background:#050505;color:#d4d4d4;font-size:.85rem}
+html,body{width:100%;min-height:100%;background:#050505;color:#d4d4d4;font-size:.85rem}
+.app{width:100vw;min-height:100dvh;height:100dvh;display:flex;background:#050505}
 
-/* ===== MAIN LAYOUT ===== */
-.app{width:100vw;height:100vh;display:flex;background:#050505}
-.sdr-panel{width:var(--sdr-width);height:100%;background:#000;overflow:hidden;border-right:1px solid #1f1f1f}
+.sdr-panel{width:var(--sdr-width);height:100%;background:#000;overflow:hidden;border-right:1px solid #1f1f1f;flex-shrink:0}
 .sdr-frame{width:100%;height:100%;border:0;display:block;background:#000}
-.chat-panel{width:var(--chat-width);min-width:280px;height:100%;background:#080808;display:flex;flex-direction:column;overflow:hidden}
 
-/* ===== CHAT HEADER ===== */
+.chat-panel{width:var(--chat-width);min-width:280px;height:100%;background:#080808;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+
 .chat-header{padding:11px;border-bottom:1px solid #1f1f1f;background:#0a0a0a}
 .header-title{color:#dc2626;font-weight:bold;letter-spacing:.7px;font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .header-user-row{display:flex;align-items:center;gap:5px;margin-top:7px}
 #currentUser{flex:1;min-width:0;color:#777;font-size:.68rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* ===== MESSAGES ===== */
-.messages{flex:1;min-height:0;padding:9px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;background:#000}
+.messages{flex:1;min-height:0;padding:9px;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:7px;background:#000}
 .msg{background:#0a0a0a;padding:8px 9px;border:1px solid #161616;border-radius:2px;width:100%;max-width:100%;word-break:break-word;color:#d4d4d4;font-size:var(--chat-font);line-height:1.4}
 .msg img.chat-image{max-width:100%;max-height:var(--image-height);display:block;margin-top:6px;border:1px solid #222;border-radius:2px;object-fit:contain}
 .msg .name{font-size:.72rem;color:#ef4444;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
@@ -30,12 +29,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#050505;color:#d4d4d
 .user-tag{font-size:.55rem;padding:2px 4px;border-radius:2px;font-weight:bold;text-transform:uppercase;letter-spacing:.3px}
 .tag-owner{background:#991b1b;color:#fff}.tag-admin{background:#c2410c;color:#fff}.tag-mod{background:#15803d;color:#fff}.tag-default{background:#1f2937;color:#9ca3af}
 
-/* ===== MODERATION ===== */
 .mod-actions{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
 .btn-mod{background:#1a1a1a;color:#888;border:1px solid #2a2a2a;padding:3px 5px;border-radius:2px;cursor:pointer;font-size:.58rem}
 .btn-mod:hover{background:#2a2a2a;color:#ccc}.btn-danger:hover{background:#991b1b;color:#fff;border-color:#991b1b}
 
-/* ===== INPUT ===== */
 .input-area{display:flex;padding:7px;background:#0a0a0a;gap:5px;border-top:1px solid #1f1f1f;align-items:center}
 input[type=text],input[type=password]{padding:7px 8px;border:1px solid #1f1f1f;border-radius:2px;background:#050505;color:#d4d4d4;outline:none;font-size:.73rem;transition:border-color .2s}
 input[type=text]:focus,input[type=password]:focus{border-color:#ef4444}
@@ -46,7 +43,6 @@ button{padding:7px 9px;border:0;border-radius:2px;background:#991b1b;color:#fff;
 button:hover{background:#7f1d1d}.btn-small{padding:4px 6px;font-size:.55rem}
 #sendBtn{padding:7px 8px}.send-btn-icon{width:14px;height:14px;object-fit:contain;display:block}
 
-/* ===== AUTH / BAN ===== */
 .auth-overlay,.banned-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);display:flex;justify-content:center;align-items:center;z-index:2000}
 .banned-overlay{z-index:3000}
 .auth-box,.banned-box{background:#0a0a0a;padding:20px;border-radius:2px;border:1px solid #1f1f1f;width:90%;max-width:350px;text-align:center}
@@ -56,16 +52,25 @@ button:hover{background:#7f1d1d}.btn-small{padding:4px 6px;font-size:.55rem}
 .auth-box input,.auth-box button{width:100%;margin-bottom:10px}
 .auth-toggle{font-size:.75rem;color:#666;cursor:pointer;text-decoration:underline}.auth-toggle:hover{color:#aaa}
 
-/* ===== WARNING ===== */
 .warning-popup{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#991b1b;color:#fff;padding:8px 16px;border-radius:2px;font-weight:bold;box-shadow:0 2px 10px rgba(153,27,27,.4);z-index:1000;font-size:.8rem;animation:fadeOut .5s ease var(--warning-time) forwards}
 @keyframes fadeOut{to{opacity:0;visibility:hidden}}
 
-/* ===== SCROLLBAR ===== */
 .messages::-webkit-scrollbar{width:5px}.messages::-webkit-scrollbar-track{background:#050505}.messages::-webkit-scrollbar-thumb{background:#222}.messages::-webkit-scrollbar-thumb:hover{background:#333}
 
-/* ===== MOBILE ===== */
+/* ===== PHONE ===== */
 @media(max-width:900px){
-.app{flex-direction:column;overflow-y:auto}.sdr-panel{width:100%;height:72vh;min-height:400px;border-right:0;border-bottom:1px solid #1f1f1f}.chat-panel{width:100%;height:28vh;min-width:0}
+html,body{width:100%;height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
+.app{width:100%;height:auto;min-height:100dvh;display:flex;flex-direction:column;overflow:visible}
+.sdr-panel{width:100%;height:var(--mobile-sdr-height);min-height:0;border-right:0;border-bottom:1px solid #1f1f1f;flex-shrink:0}
+.sdr-frame{width:100%;height:100%}
+.chat-panel{width:100%;height:var(--mobile-chat-height);min-width:0;min-height:320px;flex-shrink:0}
+}
+
+/* ===== VERY SMALL PHONES ===== */
+@media(max-width:500px){
+.chat-panel{min-height:360px}
+.header-title{font-size:.72rem}
+.msg{font-size:calc(var(--chat-font) - .02rem)}
 }
 </style>
 </head>
@@ -131,20 +136,17 @@ title="OpenWebRX WebSDR"></iframe>
 </div>
 
 <script type="module">
-/* =========================================================
-   EDITABLE CONFIGURATION
-   Change these values instead of searching through the code.
-   ========================================================= */
 
+/* ================= CONFIG ================= */
 const CONFIG={
-VERSION:"1.0.2A",
+VERSION:"1.0.4A",
 SDR_WIDTH:"85%",
 CHAT_WIDTH:"15%",
 CHAT_FONT_SIZE:"0.80rem",
 IMAGE_HEIGHT:"220px",
 WARNING_TIME:"3s",
-MOBILE_SDR_HEIGHT:"72vh",
-MOBILE_CHAT_HEIGHT:"28vh",
+MOBILE_SDR_HEIGHT:"70dvh",
+MOBILE_CHAT_HEIGHT:"30dvh",
 MAX_IMAGE_SIZE:2*1024*1024
 };
 
@@ -153,12 +155,11 @@ document.documentElement.style.setProperty("--chat-width",CONFIG.CHAT_WIDTH);
 document.documentElement.style.setProperty("--chat-font",CONFIG.CHAT_FONT_SIZE);
 document.documentElement.style.setProperty("--image-height",CONFIG.IMAGE_HEIGHT);
 document.documentElement.style.setProperty("--warning-time",CONFIG.WARNING_TIME);
+document.documentElement.style.setProperty("--mobile-sdr-height",CONFIG.MOBILE_SDR_HEIGHT);
+document.documentElement.style.setProperty("--mobile-chat-height",CONFIG.MOBILE_CHAT_HEIGHT);
 document.getElementById("versionText").textContent="v"+CONFIG.VERSION;
 
-/* =========================================================
-   FIREBASE
-   ========================================================= */
-
+/* ================= FIREBASE ================= */
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import{getDatabase,ref,push,onChildAdded,onChildChanged,onChildRemoved,get,set,update,remove,onValue}from"https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
@@ -173,109 +174,61 @@ appId:"1:888428258274:web:bc3a453ba34208992f4fbb",
 measurementId:"G-GTY7Y12J65"
 };
 
-const app=initializeApp(firebaseConfig);
-const db=getDatabase(app);
-const messagesRef=ref(db,"global_messages");
+const app=initializeApp(firebaseConfig),db=getDatabase(app),messagesRef=ref(db,"global_messages");
 
-/* =========================================================
-   ELEMENTS / STATE
-   ========================================================= */
+/* ================= ELEMENTS ================= */
+const authOverlay=document.getElementById("authOverlay"),bannedOverlay=document.getElementById("bannedOverlay"),
+banReasonText=document.getElementById("banReasonText"),banTimeLeft=document.getElementById("banTimeLeft"),
+bannedLogoutBtn=document.getElementById("bannedLogoutBtn"),authTitle=document.getElementById("authTitle"),
+authUsername=document.getElementById("authUsername"),authNickname=document.getElementById("authNickname"),
+authPin=document.getElementById("authPin"),authRecoveryCode=document.getElementById("authRecoveryCode"),
+authPrimaryBtn=document.getElementById("authPrimaryBtn"),authModeToggle=document.getElementById("authModeToggle"),
+authResetToggle=document.getElementById("authResetToggle"),currentUserDisplay=document.getElementById("currentUser"),
+logoutBtn=document.getElementById("logoutBtn"),changeNickBtn=document.getElementById("changeNickBtn"),
+messagesContainer=document.getElementById("messages"),msgInput=document.getElementById("msgInput"),
+imgInput=document.getElementById("imgInput"),sendBtn=document.getElementById("sendBtn");
 
-const authOverlay=document.getElementById("authOverlay");
-const bannedOverlay=document.getElementById("bannedOverlay");
-const banReasonText=document.getElementById("banReasonText");
-const banTimeLeft=document.getElementById("banTimeLeft");
-const bannedLogoutBtn=document.getElementById("bannedLogoutBtn");
-const authTitle=document.getElementById("authTitle");
-const authUsername=document.getElementById("authUsername");
-const authNickname=document.getElementById("authNickname");
-const authPin=document.getElementById("authPin");
-const authRecoveryCode=document.getElementById("authRecoveryCode");
-const authPrimaryBtn=document.getElementById("authPrimaryBtn");
-const authModeToggle=document.getElementById("authModeToggle");
-const authResetToggle=document.getElementById("authResetToggle");
-const currentUserDisplay=document.getElementById("currentUser");
-const logoutBtn=document.getElementById("logoutBtn");
-const changeNickBtn=document.getElementById("changeNickBtn");
-const messagesContainer=document.getElementById("messages");
-const msgInput=document.getElementById("msgInput");
-const imgInput=document.getElementById("imgInput");
-const sendBtn=document.getElementById("sendBtn");
+let currentMode="login",activeUser=localStorage.getItem("anarchy_username")||null,
+currentUserData={accessLevel:1,tag:"MEMBER",nickname:"Anon",muted:false,banned:false},banTimerInterval=null;
 
-let currentMode="login";
-let activeUser=localStorage.getItem("anarchy_username")||null;
-let currentUserData={accessLevel:1,tag:"MEMBER",nickname:"Anon",muted:false,banned:false};
-let banTimerInterval=null;
-
-/* =========================================================
-   DATABASE FILES
-   ========================================================= */
-
+/* ================= INIT ================= */
 async function initDatabaseFiles(){
-const files=["TTLS.txt","ACL.txt","LOGS.txt"];
-for(const file of files){
-const fileRef=ref(db,`system_files/${file.replace(".","_")}`);
-const snap=await get(fileRef);
+for(const file of["TTLS.txt","ACL.txt","LOGS.txt"]){
+const fileRef=ref(db,`system_files/${file.replace(".","_")}`),snap=await get(fileRef);
 if(!snap.exists())await set(fileRef,`[INITIALIZED ${file} AT ${new Date().toISOString()}]\n`);
-}
-}
+}}
 initDatabaseFiles();
 
-/* =========================================================
-   BAN / MUTE
-   ========================================================= */
-
 function formatTimeLeft(ms){
-const totalSeconds=Math.floor(ms/1000);
-const d=Math.floor(totalSeconds/86400);
-const h=Math.floor((totalSeconds%86400)/3600);
-const m=Math.floor((totalSeconds%3600)/60);
-const s=totalSeconds%60;
-let res="";
-if(d>0)res+=d+"d ";
-if(h>0)res+=h+"h ";
-if(m>0)res+=m+"m ";
-res+=s+"s";
-return res.trim();
+const totalSeconds=Math.floor(ms/1000),d=Math.floor(totalSeconds/86400),
+h=Math.floor((totalSeconds%86400)/3600),m=Math.floor((totalSeconds%3600)/60),s=totalSeconds%60;
+let res="";if(d>0)res+=d+"d ";if(h>0)res+=h+"h ";if(m>0)res+=m+"m ";res+=s+"s";return res.trim();
 }
 
 function checkBanStatus(){
 if(banTimerInterval)clearInterval(banTimerInterval);
-
 if(currentUserData.banned){
 if(currentUserData.banExpires!==-1&&Date.now()>currentUserData.banExpires){
-update(ref(db,`users/${activeUser}`),{banned:false});
-bannedOverlay.style.display="none";
-return;
+update(ref(db,`users/${activeUser}`),{banned:false});bannedOverlay.style.display="none";return;
 }
-
 banReasonText.textContent=`Reason: ${currentUserData.banReason||"SysAdmin Override"}`;
 bannedOverlay.style.display="flex";
-
-if(currentUserData.banExpires===-1){
-banTimeLeft.textContent="Lock: PERMANENT";
-}else{
-banTimerInterval=setInterval(updateBanTimer,1000);
-updateBanTimer();
-}
+if(currentUserData.banExpires===-1)banTimeLeft.textContent="Lock: PERMANENT";
+else{banTimerInterval=setInterval(updateBanTimer,1000);updateBanTimer();}
 }else bannedOverlay.style.display="none";
 }
 
 function updateBanTimer(){
 if(!currentUserData.banned||currentUserData.banExpires===-1)return;
 const remaining=currentUserData.banExpires-Date.now();
-if(remaining<=0){
-clearInterval(banTimerInterval);
-checkBanStatus();
-}else banTimeLeft.textContent="T-Minus: "+formatTimeLeft(remaining);
+if(remaining<=0){clearInterval(banTimerInterval);checkBanStatus();}
+else banTimeLeft.textContent="T-Minus: "+formatTimeLeft(remaining);
 }
 
 function isMuted(){
 if(!currentUserData.muted)return false;
 if(currentUserData.muteExpires!==-1&&Date.now()>currentUserData.muteExpires){
-update(ref(db,`users/${activeUser}`),{muted:false});
-currentUserData.muted=false;
-return false;
+update(ref(db,`users/${activeUser}`),{muted:false});currentUserData.muted=false;return false;
 }
 return true;
 }
@@ -290,306 +243,169 @@ checkBanStatus();
 });
 }
 
-/* =========================================================
-   AUTH
-   ========================================================= */
+if(activeUser){authOverlay.style.display="none";listenToUserStatus(activeUser)}
 
-if(activeUser){
-authOverlay.style.display="none";
-listenToUserStatus(activeUser);
-}
+setTimeout(()=>{const warning=document.getElementById("warning");if(warning)warning.remove()},3500);
 
-setTimeout(()=>{
-const warning=document.getElementById("warning");
-if(warning)warning.remove();
-},3500);
-
+/* ================= AUTH ================= */
 authModeToggle.addEventListener("click",()=>{
 if(currentMode==="login"){
-currentMode="register";
-authTitle.textContent="N E W   I D E N T I T Y";
-authPrimaryBtn.textContent="Register";
-authModeToggle.textContent="Return to Auth";
-authNickname.style.display="block";
-authRecoveryCode.style.display="none";
+currentMode="register";authTitle.textContent="N E W   I D E N T I T Y";authPrimaryBtn.textContent="Register";
+authModeToggle.textContent="Return to Auth";authNickname.style.display="block";authRecoveryCode.style.display="none";
 }else{
-currentMode="login";
-authTitle.textContent="A U T H E N T I C A T E";
-authPrimaryBtn.textContent="Initialize";
-authModeToggle.textContent="New Identity? Register";
-authNickname.style.display="none";
-authRecoveryCode.style.display="none";
-}
-});
+currentMode="login";authTitle.textContent="A U T H E N T I C A T E";authPrimaryBtn.textContent="Initialize";
+authModeToggle.textContent="New Identity? Register";authNickname.style.display="none";authRecoveryCode.style.display="none";
+}});
 
 authResetToggle.addEventListener("click",()=>{
-currentMode="reset";
-authTitle.textContent="P I N   O V E R R I D E";
-authPrimaryBtn.textContent="Update Key";
-authRecoveryCode.style.display="block";
-authNickname.style.display="none";
+currentMode="reset";authTitle.textContent="P I N   O V E R R I D E";authPrimaryBtn.textContent="Update Key";
+authRecoveryCode.style.display="block";authNickname.style.display="none";
 });
 
 authPrimaryBtn.addEventListener("click",async()=>{
-const username=authUsername.value.trim().toLowerCase();
-const nickname=authNickname.value.trim()||username;
-const pin=authPin.value.trim();
-const recCode=authRecoveryCode.value.trim();
-
+const username=authUsername.value.trim().toLowerCase(),nickname=authNickname.value.trim()||username,
+pin=authPin.value.trim(),recCode=authRecoveryCode.value.trim();
 if(!username||!pin)return alert("ERR: Missing parameters.");
-
 const userRef=ref(db,`users/${username}`);
 
 if(currentMode==="register"){
-const userSnap=await get(userRef);
-if(userSnap.exists())return alert("ERR: ID exists.");
-
+const userSnap=await get(userRef);if(userSnap.exists())return alert("ERR: ID exists.");
 const recoveryCode=Math.floor(100000+Math.random()*900000).toString();
-
-await set(userRef,{
-username,nickname,pin,recoveryCode,tag:"MEMBER",accessLevel:1,muted:false,banned:false
-});
-
-alert(`REGISTRATION COMPLETE\n\nSave Override Code:\n${recoveryCode}`);
-loginUser(username);
-
+await set(userRef,{username,nickname,pin,recoveryCode,tag:"MEMBER",accessLevel:1,muted:false,banned:false});
+alert(`REGISTRATION COMPLETE\n\nSave Override Code:\n${recoveryCode}`);loginUser(username);
 }else if(currentMode==="login"){
-const snapshot=await get(userRef);
-if(!snapshot.exists())return alert("ERR: Unknown ID.");
-if(snapshot.val().pin!==pin)return alert("ERR: Invalid PIN.");
-loginUser(username);
-
+const snapshot=await get(userRef);if(!snapshot.exists())return alert("ERR: Unknown ID.");
+if(snapshot.val().pin!==pin)return alert("ERR: Invalid PIN.");loginUser(username);
 }else if(currentMode==="reset"){
-const snapshot=await get(userRef);
-if(!snapshot.exists())return alert("ERR: Unknown ID.");
+const snapshot=await get(userRef);if(!snapshot.exists())return alert("ERR: Unknown ID.");
 if(snapshot.val().recoveryCode!==recCode)return alert("ERR: Invalid Override Code.");
-await update(userRef,{pin});
-alert("PIN UPDATED. INITIALIZING...");
-loginUser(username);
-}
-});
+await update(userRef,{pin});alert("PIN UPDATED. INITIALIZING...");loginUser(username);
+}});
 
 function loginUser(username){
-activeUser=username;
-localStorage.setItem("anarchy_username",username);
-listenToUserStatus(username);
-authOverlay.style.display="none";
+activeUser=username;localStorage.setItem("anarchy_username",username);
+listenToUserStatus(username);authOverlay.style.display="none";
 }
 
 changeNickBtn.addEventListener("click",async()=>{
 const newNick=prompt("Enter new Alias:",currentUserData.nickname);
-if(newNick&&newNick.trim()!=="")
-await update(ref(db,`users/${activeUser}`),{nickname:newNick.trim()});
+if(newNick&&newNick.trim()!=="")await update(ref(db,`users/${activeUser}`),{nickname:newNick.trim()});
 });
 
 logoutBtn.addEventListener("click",performLogout);
 bannedLogoutBtn.addEventListener("click",performLogout);
 
-function performLogout(){
-localStorage.removeItem("anarchy_username");
-location.reload();
-}
+function performLogout(){localStorage.removeItem("anarchy_username");location.reload()}
 
-/* =========================================================
-   LOGGING
-   ========================================================= */
-
+/* ================= LOGGING ================= */
 async function appendToTxtLog(filename,logMessage){
-const fileKey=filename.replace(".","_");
-const fileRef=ref(db,`system_files/${fileKey}`);
-const snap=await get(fileRef);
+const fileKey=filename.replace(".","_"),fileRef=ref(db,`system_files/${fileKey}`),snap=await get(fileRef);
 const currentContent=snap.exists()?snap.val():"";
 await set(fileRef,currentContent+`[${new Date().toLocaleString()}] ${logMessage}\n`);
 }
 
-/* =========================================================
-   IMAGE UPLOAD
-   ========================================================= */
-
+/* ================= IMAGE ================= */
 imgInput.addEventListener("change",async e=>{
 if(isMuted()){
 const left=currentUserData.muteExpires===-1?"PERMANENT":formatTimeLeft(currentUserData.muteExpires-Date.now());
-alert(`TX BLOCKED (Muted) | Clear in: ${left}`);
-imgInput.value="";
-return;
+alert(`TX BLOCKED (Muted) | Clear in: ${left}`);imgInput.value="";return;
 }
-
-const file=e.target.files[0];
-if(!file)return;
-
-if(file.size>CONFIG.MAX_IMAGE_SIZE){
-alert("ERR: Payload exceeds 2MB limit.");
-imgInput.value="";
-return;
-}
-
+const file=e.target.files[0];if(!file)return;
+if(file.size>CONFIG.MAX_IMAGE_SIZE){alert("ERR: Payload exceeds 2MB limit.");imgInput.value="";return}
 const reader=new FileReader();
-reader.onload=async()=>{
-await push(messagesRef,{
-username:activeUser,
-nickname:currentUserData.nickname||activeUser,
-userTag:currentUserData.tag||"MEMBER",
-accessLevel:currentUserData.accessLevel||1,
-message:"",
-image:reader.result,
-timestamp:Date.now()
-});
-};
-reader.readAsDataURL(file);
-imgInput.value="";
+reader.onload=async()=>await push(messagesRef,{username:activeUser,nickname:currentUserData.nickname||activeUser,
+userTag:currentUserData.tag||"MEMBER",accessLevel:currentUserData.accessLevel||1,message:"",
+image:reader.result,timestamp:Date.now()});
+reader.readAsDataURL(file);imgInput.value="";
 });
 
-/* =========================================================
-   MESSAGES
-   ========================================================= */
-
+/* ================= MESSAGES ================= */
 async function sendMessage(){
 if(!activeUser)return alert("ERR: Not authenticated.");
-
 if(isMuted()){
 const left=currentUserData.muteExpires===-1?"PERMANENT":formatTimeLeft(currentUserData.muteExpires-Date.now());
 return alert(`TX BLOCKED (Muted) | Clear in: ${left}`);
 }
-
-const text=msgInput.value.trim();
-if(text==="")return;
-
-await push(messagesRef,{
-username:activeUser,
-nickname:currentUserData.nickname||activeUser,
-userTag:currentUserData.tag||"MEMBER",
-accessLevel:currentUserData.accessLevel||1,
-message:text,
-timestamp:Date.now()
-});
-
+const text=msgInput.value.trim();if(text==="")return;
+await push(messagesRef,{username:activeUser,nickname:currentUserData.nickname||activeUser,
+userTag:currentUserData.tag||"MEMBER",accessLevel:currentUserData.accessLevel||1,message:text,timestamp:Date.now()});
 msgInput.value="";
 }
 
 sendBtn.addEventListener("click",sendMessage);
-
-msgInput.addEventListener("keypress",e=>{
-if(e.key==="Enter")sendMessage();
-});
-
+msgInput.addEventListener("keypress",e=>{if(e.key==="Enter")sendMessage()});
 onChildAdded(messagesRef,data=>renderMessage(data.key,data.val()));
 
 onChildChanged(messagesRef,data=>{
 const existingMsg=document.getElementById(`msg-${data.key}`);
-if(existingMsg){
-const body=existingMsg.querySelector(".msg-body");
-if(body)body.textContent=data.val().message;
-}
+if(existingMsg){const body=existingMsg.querySelector(".msg-body");if(body)body.textContent=data.val().message;}
 });
 
 onChildRemoved(messagesRef,data=>{
-const existingMsg=document.getElementById(`msg-${data.key}`);
-if(existingMsg)existingMsg.remove();
+const existingMsg=document.getElementById(`msg-${data.key}`);if(existingMsg)existingMsg.remove();
 });
 
-/* =========================================================
-   MESSAGE RENDER
-   ========================================================= */
-
+/* ================= RENDER ================= */
 function renderMessage(msgId,msgData){
 if(document.getElementById(`msg-${msgId}`))return;
-
-const msgElement=document.createElement("div");
-msgElement.classList.add("msg");
-msgElement.id=`msg-${msgId}`;
-
-const tagText=msgData.userTag||"MEMBER";
-const level=parseInt(msgData.accessLevel||1);
-
+const msgElement=document.createElement("div");msgElement.classList.add("msg");msgElement.id=`msg-${msgId}`;
+const tagText=msgData.userTag||"MEMBER",level=parseInt(msgData.accessLevel||1);
 let tagClass="tag-default";
 if(level>=10||tagText.toUpperCase()==="OWNER")tagClass="tag-owner";
 else if(level>=8||tagText.toUpperCase()==="ADMIN")tagClass="tag-admin";
 else if(level>=5||tagText.toUpperCase()==="MOD")tagClass="tag-mod";
 
-let modButtonsHtml="";
-const myLevel=parseInt(currentUserData.accessLevel||1);
-
+let modButtonsHtml="",myLevel=parseInt(currentUserData.accessLevel||1);
 if(myLevel>=5){
 modButtonsHtml+=`<button class="btn-mod" onclick="editMsg('${msgId}')">EDIT</button>`;
 modButtonsHtml+=`<button class="btn-mod btn-danger" onclick="deleteMsg('${msgId}')">DEL</button>`;
 }
-
 if(myLevel>=8){
 modButtonsHtml+=`<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}','MUTE')">MUTE</button>`;
 modButtonsHtml+=`<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}','BANIP')">BAN</button>`;
 }
 
 const imageHtml=msgData.image?`<img src="${msgData.image}" class="chat-image">`:"";
-
 msgElement.innerHTML=`
-<div class="name">
-<span>${escapeHTML(msgData.nickname)} <small style="color:#555">(@${escapeHTML(msgData.username)})</small></span>
-<span class="user-tag ${tagClass}">[${escapeHTML(tagText)}]</span>
-</div>
+<div class="name"><span>${escapeHTML(msgData.nickname)} <small style="color:#555">(@${escapeHTML(msgData.username)})</small></span>
+<span class="user-tag ${tagClass}">[${escapeHTML(tagText)}]</span></div>
 ${msgData.message?`<div class="msg-body">${escapeHTML(msgData.message)}</div>`:""}
-${imageHtml}
-${modButtonsHtml?`<div class="mod-actions">${modButtonsHtml}</div>`:""}
-`;
-
-messagesContainer.appendChild(msgElement);
-messagesContainer.scrollTop=messagesContainer.scrollHeight;
+${imageHtml}${modButtonsHtml?`<div class="mod-actions">${modButtonsHtml}</div>`:""}`;
+messagesContainer.appendChild(msgElement);messagesContainer.scrollTop=messagesContainer.scrollHeight;
 }
 
-/* =========================================================
-   MODERATION
-   ========================================================= */
-
+/* ================= MODERATION ================= */
 window.editMsg=async msgId=>{
 const newText=prompt("OVERWRITE TX:");
 if(newText&&newText.trim()!==""){
 await update(ref(db,`global_messages/${msgId}`),{message:newText.trim()});
 await appendToTxtLog("LOGS.txt",`[EDIT] User @${activeUser} edited message ID ${msgId} to: "${newText.trim()}"`);
-}
-};
+}};
 
 window.deleteMsg=async msgId=>{
 if(confirm("PURGE TX?")){
 await remove(ref(db,`global_messages/${msgId}`));
 await appendToTxtLog("LOGS.txt",`[DELETE] User @${activeUser} deleted message ID ${msgId}`);
-}
-};
+}};
 
 window.punishUser=async(targetUser,actionType)=>{
 const durationInput=prompt(`Set ${actionType} duration in HOURS (0 = Perm, 0.5 = 30m):`,"24");
 if(durationInput===null)return;
-
-const hours=parseFloat(durationInput);
-if(isNaN(hours)||hours<0)return alert("ERR: Invalid duration.");
-
-const reason=prompt(`Reason for ${actionType}:`,"TOS Violation");
-if(reason===null)return;
-
-const targetRef=ref(db,`users/${targetUser}`);
-const expiresAt=hours===0?-1:Date.now()+hours*3600*1000;
-
-if(actionType==="MUTE")
-await update(targetRef,{muted:true,muteReason:reason,muteExpires:expiresAt});
-else if(actionType==="BANIP")
-await update(targetRef,{banned:true,banReason:reason,banExpires:expiresAt});
-
-await appendToTxtLog(
-"LOGS.txt",
-`[${actionType}] Target: @${targetUser} | Hrs: ${hours===0?"Perm":hours} | Reason: "${reason}" | Exec: @${activeUser}`
-);
-
+const hours=parseFloat(durationInput);if(isNaN(hours)||hours<0)return alert("ERR: Invalid duration.");
+const reason=prompt(`Reason for ${actionType}:`,"TOS Violation");if(reason===null)return;
+const targetRef=ref(db,`users/${targetUser}`),expiresAt=hours===0?-1:Date.now()+hours*3600*1000;
+if(actionType==="MUTE")await update(targetRef,{muted:true,muteReason:reason,muteExpires:expiresAt});
+else if(actionType==="BANIP")await update(targetRef,{banned:true,banReason:reason,banExpires:expiresAt});
+await appendToTxtLog("LOGS.txt",`[${actionType}] Target: @${targetUser} | Hrs: ${hours===0?"Perm":hours} | Reason: "${reason}" | Exec: @${activeUser}`);
 alert(`EXECUTION COMPLETE: ${actionType} applied to @${targetUser}`);
 };
 
-/* =========================================================
-   SECURITY
-   ========================================================= */
-
+/* ================= ESCAPE ================= */
 function escapeHTML(str){
-return str?str.replace(/[&<>'"]/g,tag=>({
-"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"
-}[tag]||tag)):"";
+return str?str.replace(/[&<>'"]/g,tag=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[tag]||tag)):"";
 }
 </script>
 
 </body>
 </html>
+```
