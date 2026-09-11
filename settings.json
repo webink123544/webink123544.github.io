@@ -4,7 +4,7 @@
     "simtx": {
       "name": "SimTX SDR",
       "type": "rtl_tcp",
-      "remote": "bore.pub:64011",
+      "remote": "bore.pub:5361",
       "profiles": {
         "default": {
           "name": "SimTX Band",
