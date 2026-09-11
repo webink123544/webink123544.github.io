@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     libfftw3-dev \
     curl \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Rust via rustup
