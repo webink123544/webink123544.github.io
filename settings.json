@@ -6,12 +6,96 @@
       "type": "rtl_tcp",
       "remote": "bore.pub:5361",
       "profiles": {
+        "vlf_zero": {
+          "name": "0 kHz - 250 kHz (VLF / ELF)",
+          "center_freq": 125000,
+          "samp_rate": 250000,
+          "start_freq": 0,
+          "start_mod": "am"
+        },
         "default": {
-          "name": "SimTX Band",
+          "name": "40m Band (7.05 MHz)",
           "center_freq": 7050000,
           "samp_rate": 250000,
           "start_freq": 7050000,
           "start_mod": "am"
+        },
+        "vlf_mw": {
+          "name": "LF / MW (500 kHz)",
+          "center_freq": 500000,
+          "samp_rate": 250000,
+          "start_freq": 500000,
+          "start_mod": "am"
+        },
+        "mw_radio": {
+          "name": "AM Broadcast (1 MHz)",
+          "center_freq": 1000000,
+          "samp_rate": 250000,
+          "start_freq": 1000000,
+          "start_mod": "am"
+        },
+        "band_80m": {
+          "name": "80m Band (3.6 MHz)",
+          "center_freq": 3600000,
+          "samp_rate": 250000,
+          "start_freq": 3600000,
+          "start_mod": "lsb"
+        },
+        "band_20m": {
+          "name": "20m Band (14.15 MHz)",
+          "center_freq": 14150000,
+          "samp_rate": 250000,
+          "start_freq": 14150000,
+          "start_mod": "usb"
+        },
+        "band_10m": {
+          "name": "10m / CB (27 MHz)",
+          "center_freq": 27200000,
+          "samp_rate": 250000,
+          "start_freq": 27200000,
+          "start_mod": "fm"
+        },
+        "fm_radio": {
+          "name": "FM Commercial (100 MHz)",
+          "center_freq": 100000000,
+          "samp_rate": 250000,
+          "start_freq": 100000000,
+          "start_mod": "wfm"
+        },
+        "airband": {
+          "name": "Airband (125 MHz)",
+          "center_freq": 125000000,
+          "samp_rate": 250000,
+          "start_freq": 125000000,
+          "start_mod": "am"
+        },
+        "vhf_2m": {
+          "name": "2m VHF (145 MHz)",
+          "center_freq": 145000000,
+          "samp_rate": 250000,
+          "start_freq": 145000000,
+          "start_mod": "nfm"
+        },
+        "uhf_70cm": {
+          "name": "70cm UHF (435 MHz)",
+          "center_freq": 435000000,
+          "samp_rate": 250000,
+          "start_freq": 435000000,
+          "start_mod": "nfm"
+        },
+        "uhf_800": {
+          "name": "UHF (800 MHz)",
+          "center_freq": 800000000,
+          "samp_rate": 250000,
+          "start_freq": 800000000,
+          "start_mod": "nfm"
+        },
+        "uhf_max": {
+          "name": "UHF Max (999 MHz)",
+          "center_freq": 999000000,
+          "samp_rate": 250000,
+          "start_freq": 999000000,
+          "start_mod": "nfm"
         }
       }
     }
