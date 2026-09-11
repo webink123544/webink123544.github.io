@@ -3,26 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANARCHY CHAT</title>
+    <title>Anarchy Relay</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background: #000000; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; position: relative; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 
+        }
+        
+        body { 
+            background: #050505; 
+            color: #d4d4d4; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            position: relative; 
+            font-size: 0.85rem;
+        }
         
         .warning-popup {
             position: absolute;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: #dc2626;
+            background: #991b1b;
             color: #ffffff;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 2px;
             font-weight: bold;
-            box-shadow: 0 2px 10px rgba(220, 38, 38, 0.4);
+            box-shadow: 0 2px 10px rgba(153, 27, 27, 0.4);
             z-index: 1000;
             display: flex;
             align-items: center;
             gap: 10px;
+            font-size: 0.8rem;
             animation: fadeOut 0.5s ease 3s forwards;
         }
 
@@ -41,86 +57,92 @@
         .banned-overlay { z-index: 3000; }
 
         .auth-box, .banned-box {
-            background: #121212;
-            padding: 24px;
+            background: #0a0a0a;
+            padding: 20px;
             border-radius: 2px;
-            border: 1px solid #222222;
+            border: 1px solid #1f1f1f;
             width: 90%;
-            max-width: 400px;
+            max-width: 350px;
             text-align: center;
         }
 
-        .banned-box { border-color: #dc2626; }
-        .banned-box h2 { color: #dc2626; margin-bottom: 10px; }
-        .banned-box p { color: #aaa; font-size: 0.9rem; margin-bottom: 5px; }
-        .time-left-text { color: #ef4444; font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; }
+        .banned-box { border-color: #991b1b; }
+        .banned-box h2 { color: #dc2626; margin-bottom: 10px; font-size: 1.1rem; letter-spacing: 1px; }
+        .banned-box p { color: #888; font-size: 0.8rem; margin-bottom: 5px; }
+        .time-left-text { color: #ef4444; font-weight: bold; font-size: 0.9rem; margin-bottom: 15px; }
 
-        .auth-box h2 { margin-bottom: 15px; color: #dc2626; letter-spacing: 1px; }
-        .auth-box input { width: 100%; margin-bottom: 12px; }
+        .auth-box h2 { margin-bottom: 15px; color: #dc2626; letter-spacing: 1px; font-size: 1.1rem; }
+        .auth-box input { width: 100%; margin-bottom: 10px; }
         .auth-box button { width: 100%; margin-bottom: 10px; }
-        .auth-toggle { font-size: 0.85rem; color: #888; cursor: pointer; text-decoration: underline; }
-        .auth-toggle:hover { color: #fff; }
+        .auth-toggle { font-size: 0.75rem; color: #666; cursor: pointer; text-decoration: underline; }
+        .auth-toggle:hover { color: #aaa; }
 
         .chat-container { 
             width: 95%; 
-            max-width: 900px; 
+            max-width: 850px; 
             height: 90vh; 
-            background: #0a0a0a; 
+            background: #080808; 
             border-radius: 2px; 
             display: flex; 
             flex-direction: column; 
             overflow: hidden; 
-            border: 1px solid #222222;
+            border: 1px solid #1f1f1f;
         }
         
         .chat-header { 
-            background: #121212; 
-            padding: 14px 20px; 
+            background: #0a0a0a; 
+            padding: 12px 16px; 
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-weight: 700; 
-            font-size: 1.1rem;
-            border-bottom: 1px solid #222222; 
-            color: #ffffff;
+            font-weight: normal; 
+            font-size: 0.85rem;
+            border-bottom: 1px solid #1f1f1f; 
+            color: #888;
+        }
+
+        .header-title {
+            color: #dc2626;
             letter-spacing: 1px;
+            font-weight: bold;
         }
         
         .messages { 
             flex: 1; 
-            padding: 20px; 
+            padding: 16px; 
             overflow-y: auto; 
             display: flex; 
             flex-direction: column; 
-            gap: 10px; 
+            gap: 8px; 
             background: #000000;
         }
         
         .msg { 
-            background: #121212; 
-            padding: 10px 14px; 
+            background: #0a0a0a; 
+            padding: 8px 12px; 
             border-radius: 2px; 
             max-width: 85%; 
             width: fit-content; 
             word-break: break-word; 
-            border: 1px solid #222222;
-            color: #e5e5e5;
-            position: relative;
+            border: 1px solid #161616;
+            color: #d4d4d4;
+            font-size: 0.8rem;
+            line-height: 1.4;
         }
 
         .msg img.chat-image {
             max-width: 100%;
-            max-height: 300px;
+            max-height: 250px;
             border-radius: 2px;
-            margin-top: 8px;
+            margin-top: 6px;
             display: block;
-            border: 1px solid #333;
+            border: 1px solid #222;
         }
         
         .msg .name { 
-            font-size: 0.85rem; 
+            font-size: 0.75rem; 
             color: #ef4444; 
-            font-weight: 600; 
+            font-weight: bold; 
             margin-bottom: 4px; 
             display: flex;
             align-items: center;
@@ -129,135 +151,152 @@
         }
 
         .user-tag {
-            font-size: 0.7rem;
-            padding: 1px 4px;
+            font-size: 0.6rem;
+            padding: 2px 4px;
             border-radius: 2px;
             font-weight: bold;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .tag-owner { background: #dc2626; color: #ffffff; }
-        .tag-admin { background: #ea580c; color: #ffffff; }
-        .tag-mod { background: #16a34a; color: #ffffff; }
-        .tag-default { background: #374151; color: #9ca3af; }
+        .tag-owner { background: #991b1b; color: #ffffff; }
+        .tag-admin { background: #c2410c; color: #ffffff; }
+        .tag-mod { background: #15803d; color: #ffffff; }
+        .tag-default { background: #1f2937; color: #9ca3af; }
         
         .mod-actions {
-            margin-top: 8px;
+            margin-top: 6px;
             display: flex;
             gap: 4px;
-            font-size: 0.75rem;
         }
 
         .btn-mod {
-            background: #262626;
-            color: #aaa;
-            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #888;
+            border: 1px solid #2a2a2a;
             padding: 2px 6px;
             border-radius: 2px;
             cursor: pointer;
+            font-size: 0.65rem;
         }
-        .btn-mod:hover { background: #333; color: #fff; }
-        .btn-danger:hover { background: #dc2626; color: #fff; }
+        .btn-mod:hover { background: #2a2a2a; color: #ccc; }
+        .btn-danger:hover { background: #991b1b; color: #fff; border-color: #991b1b; }
 
         .input-area { 
             display: flex; 
-            padding: 12px; 
-            background: #121212; 
-            gap: 8px; 
-            border-top: 1px solid #222222;
+            padding: 10px; 
+            background: #0a0a0a; 
+            gap: 6px; 
+            border-top: 1px solid #1f1f1f;
             align-items: center;
         }
         
         input[type="text"], input[type="password"] { 
-            padding: 10px 14px; 
-            border: 1px solid #222222; 
+            padding: 8px 12px; 
+            border: 1px solid #1f1f1f; 
             border-radius: 2px; 
-            background: #0a0a0a; 
-            color: #ffffff; 
+            background: #050505; 
+            color: #d4d4d4; 
             outline: none; 
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             transition: border-color 0.2s;
         }
         
         input[type="text"]:focus, input[type="password"]:focus { border-color: #ef4444; }
         
         .img-upload-btn {
-            background: #222222;
-            color: #ccc;
-            padding: 10px 14px;
+            background: #161616;
+            color: #888;
+            padding: 8px 12px;
             border-radius: 2px;
             cursor: pointer;
-            border: 1px solid #333;
+            border: 1px solid #2a2a2a;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: bold;
         }
-        .img-upload-btn:hover { background: #333; color: #fff; }
+        .img-upload-btn:hover { background: #2a2a2a; color: #ccc; }
 
         button { 
-            padding: 10px 18px; 
+            padding: 8px 16px; 
             border: none; 
             border-radius: 2px; 
-            background: #dc2626; 
+            background: #991b1b; 
             color: #ffffff; 
-            font-weight: 600; 
-            font-size: 0.9rem;
+            font-weight: bold; 
+            font-size: 0.8rem;
             cursor: pointer; 
             transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        button:hover { background: #b91c1c; }
-        .btn-small { padding: 4px 10px; font-size: 0.8rem; }
+        button:hover { background: #7f1d1d; }
+        .btn-small { padding: 4px 8px; font-size: 0.7rem; }
+
+        #sendBtn {
+            padding: 8px 14px;
+        }
+
+        .send-btn-icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+            display: block;
+        }
     </style>
 </head>
 <body>
 
 <div class="warning-popup" id="warning">
-    WARNING: NO RULES! CHAT AT YOUR OWN RISK!
+    [!] UNMODERATED ZONE: PROCEED WITH CAUTION
 </div>
 
 <div class="banned-overlay" id="bannedOverlay" style="display: none;">
     <div class="banned-box">
-        <h2>ACCESS DENIED</h2>
-        <p id="banReasonText">You have been banned from Anarchy Chat.</p>
+        <h2>ACCESS RESTRICTED</h2>
+        <p id="banReasonText">Connection rejected by host.</p>
         <div id="banTimeLeft" class="time-left-text">Calculating...</div>
-        <button id="bannedLogoutBtn">Logout</button>
+        <button id="bannedLogoutBtn">Disconnect</button>
     </div>
 </div>
 
 <div class="auth-overlay" id="authOverlay">
     <div class="auth-box">
-        <h2 id="authTitle">Account Login</h2>
-        <input type="text" id="authUsername" placeholder="Username (Permanent)" autocomplete="off">
-        <input type="text" id="authNickname" placeholder="Public Nickname" autocomplete="off" style="display:none;">
-        <input type="password" id="authPin" placeholder="4-Digit PIN Code" maxlength="8" autocomplete="off">
-        <input type="text" id="authRecoveryCode" placeholder="Recovery Code (For Resets Only)" style="display:none;" autocomplete="off">
+        <h2 id="authTitle">A U T H E N T I C A T E</h2>
+        <input type="text" id="authUsername" placeholder="Root ID (Username)" autocomplete="off">
+        <input type="text" id="authNickname" placeholder="Display Alias" autocomplete="off" style="display:none;">
+        <input type="password" id="authPin" placeholder="4-Digit PIN Key" maxlength="8" autocomplete="off">
+        <input type="text" id="authRecoveryCode" placeholder="Override Code" style="display:none;" autocomplete="off">
         
-        <button id="authPrimaryBtn">Login</button>
-        <p class="auth-toggle" id="authResetToggle" style="margin-bottom: 8px;">Forgot PIN? Reset with Code</p>
-        <p class="auth-toggle" id="authModeToggle">Need an account? Register</p>
+        <button id="authPrimaryBtn">Initialize</button>
+        <p class="auth-toggle" id="authResetToggle" style="margin-bottom: 8px;">Lost PIN? Initiate Override</p>
+        <p class="auth-toggle" id="authModeToggle">New Identity? Register</p>
     </div>
 </div>
 
 <div class="chat-container">
     <div class="chat-header">
-        <span>ANARCHY CHAT</span>
-        <div>
-            <span id="currentUser" style="font-size: 0.85rem; color: #888; margin-right: 8px;"></span>
-            <button id="changeNickBtn" class="btn-small" style="background:#374151; margin-right: 5px;">Edit Nick</button>
-            <button id="logoutBtn" class="btn-small">Logout</button>
+        <span class="header-title">[ ANARCHY_NET // RELAY_01 ]</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="currentUser" style="font-size: 0.75rem; color: #666;"></span>
+            <button id="changeNickBtn" class="btn-small" style="background:#1f2937;">Alias</button>
+            <button id="logoutBtn" class="btn-small">Exit</button>
         </div>
     </div>
     <div class="messages" id="messages"></div>
     <form class="input-area" id="chatForm" onsubmit="return false;" autocomplete="off">
         <label class="img-upload-btn" title="Upload Image">
-            IMG
+            [IMG]
             <input type="file" id="imgInput" accept="image/*" style="display: none;">
         </label>
-        <input type="text" id="msgInput" placeholder="Type a message..." style="flex: 1;" autocomplete="off">
-        <button id="sendBtn" type="button">Send</button>
+        <input type="text" id="msgInput" placeholder="Broadcast message..." style="flex: 1;" autocomplete="off">
+        <button id="sendBtn" type="button" title="Send Message">
+            <img src="send.png" alt="Send" class="send-btn-icon">
+        </button>
     </form>
 </div>
 
@@ -305,7 +344,7 @@
 
     let currentMode = 'login';
     let activeUser = localStorage.getItem('anarchy_username') || null;
-    let currentUserData = { accessLevel: 1, tag: 'MEMBER', nickname: 'Anonymous', muted: false, banned: false };
+    let currentUserData = { accessLevel: 1, tag: 'MEMBER', nickname: 'Anon', muted: false, banned: false };
     let banTimerInterval = null;
 
     async function initDatabaseFiles() {
@@ -339,17 +378,16 @@
 
         if (currentUserData.banned) {
             if (currentUserData.banExpires !== -1 && Date.now() > currentUserData.banExpires) {
-                // Ban expired automatically
                 update(ref(db, `users/${activeUser}`), { banned: false });
                 bannedOverlay.style.display = 'none';
                 return;
             }
 
-            banReasonText.textContent = `Reason: ${currentUserData.banReason || 'Banned by admin'}`;
+            banReasonText.textContent = `Reason: ${currentUserData.banReason || 'SysAdmin Override'}`;
             bannedOverlay.style.display = 'flex';
 
             if (currentUserData.banExpires === -1) {
-                banTimeLeft.textContent = "Time Left: Permanent";
+                banTimeLeft.textContent = "Lock: PERMANENT";
             } else {
                 banTimerInterval = setInterval(updateBanTimer, 1000);
                 updateBanTimer(); 
@@ -366,14 +404,13 @@
             clearInterval(banTimerInterval);
             checkBanStatus();
         } else {
-            banTimeLeft.textContent = "Time Left: " + formatTimeLeft(remaining);
+            banTimeLeft.textContent = "T-Minus: " + formatTimeLeft(remaining);
         }
     }
 
     function isMuted() {
         if (!currentUserData.muted) return false;
         if (currentUserData.muteExpires !== -1 && Date.now() > currentUserData.muteExpires) {
-            // Mute expired automatically
             update(ref(db, `users/${activeUser}`), { muted: false });
             currentUserData.muted = false; 
             return false;
@@ -386,7 +423,7 @@
             if (snapshot.exists()) {
                 currentUserData = snapshot.val();
                 currentUserData.accessLevel = parseInt(currentUserData.accessLevel || 1);
-                currentUserDisplay.textContent = `${currentUserData.nickname} (@${username}) [${currentUserData.tag || 'MEMBER'}] Lvl:${currentUserData.accessLevel}`;
+                currentUserDisplay.textContent = `${currentUserData.nickname} (@${username}) [Lvl:${currentUserData.accessLevel}]`;
                 checkBanStatus();
             }
         });
@@ -405,16 +442,16 @@
     authModeToggle.addEventListener('click', () => {
         if (currentMode === 'login') {
             currentMode = 'register';
-            authTitle.textContent = 'Register Account';
-            authPrimaryBtn.textContent = 'Create Account';
-            authModeToggle.textContent = 'Already have an account? Login';
+            authTitle.textContent = 'N E W   I D E N T I T Y';
+            authPrimaryBtn.textContent = 'Register';
+            authModeToggle.textContent = 'Return to Auth';
             authNickname.style.display = 'block';
             authRecoveryCode.style.display = 'none';
         } else {
             currentMode = 'login';
-            authTitle.textContent = 'Account Login';
-            authPrimaryBtn.textContent = 'Login';
-            authModeToggle.textContent = 'Need an account? Register';
+            authTitle.textContent = 'A U T H E N T I C A T E';
+            authPrimaryBtn.textContent = 'Initialize';
+            authModeToggle.textContent = 'New Identity? Register';
             authNickname.style.display = 'none';
             authRecoveryCode.style.display = 'none';
         }
@@ -422,8 +459,8 @@
 
     authResetToggle.addEventListener('click', () => {
         currentMode = 'reset';
-        authTitle.textContent = 'Reset PIN Code';
-        authPrimaryBtn.textContent = 'Update PIN';
+        authTitle.textContent = 'P I N   O V E R R I D E';
+        authPrimaryBtn.textContent = 'Update Key';
         authRecoveryCode.style.display = 'block';
         authNickname.style.display = 'none';
     });
@@ -434,13 +471,13 @@
         const pin = authPin.value.trim();
         const recCode = authRecoveryCode.value.trim();
 
-        if (!username || !pin) return alert("Please fill required fields!");
+        if (!username || !pin) return alert("ERR: Missing parameters.");
 
         const userRef = ref(db, `users/${username}`);
 
         if (currentMode === 'register') {
             const userSnap = await get(userRef);
-            if (userSnap.exists()) return alert("Username already taken!");
+            if (userSnap.exists()) return alert("ERR: ID exists.");
 
             const recoveryCode = Math.floor(100000 + Math.random() * 900000).toString();
             
@@ -455,23 +492,23 @@
                 banned: false
             });
 
-            alert(`ACCOUNT CREATED!\n\nSave your Recovery Code:\n${recoveryCode}`);
+            alert(`REGISTRATION COMPLETE\n\nSave Override Code:\n${recoveryCode}`);
             loginUser(username);
         } 
         else if (currentMode === 'login') {
             const snapshot = await get(userRef);
-            if (!snapshot.exists()) return alert("User does not exist!");
-            if (snapshot.val().pin !== pin) return alert("Incorrect PIN!");
+            if (!snapshot.exists()) return alert("ERR: Unknown ID.");
+            if (snapshot.val().pin !== pin) return alert("ERR: Invalid PIN.");
 
             loginUser(username);
         }
         else if (currentMode === 'reset') {
             const snapshot = await get(userRef);
-            if (!snapshot.exists()) return alert("User does not exist!");
-            if (snapshot.val().recoveryCode !== recCode) return alert("Invalid Recovery Code!");
+            if (!snapshot.exists()) return alert("ERR: Unknown ID.");
+            if (snapshot.val().recoveryCode !== recCode) return alert("ERR: Invalid Override Code.");
 
             await update(userRef, { pin: pin });
-            alert("PIN updated! Logging in...");
+            alert("PIN UPDATED. INITIALIZING...");
             loginUser(username);
         }
     });
@@ -484,7 +521,7 @@
     }
 
     changeNickBtn.addEventListener('click', async () => {
-        const newNick = prompt("Enter new public nickname:", currentUserData.nickname);
+        const newNick = prompt("Enter new Alias:", currentUserData.nickname);
         if (newNick && newNick.trim() !== "") {
             await update(ref(db, `users/${activeUser}`), { nickname: newNick.trim() });
         }
@@ -509,8 +546,8 @@
 
     imgInput.addEventListener('change', async (e) => {
         if (isMuted()) {
-            const left = currentUserData.muteExpires === -1 ? "Permanent" : formatTimeLeft(currentUserData.muteExpires - Date.now());
-            alert(`You are muted! Time left: ${left}`);
+            const left = currentUserData.muteExpires === -1 ? "PERMANENT" : formatTimeLeft(currentUserData.muteExpires - Date.now());
+            alert(`TX BLOCKED (Muted) | Clear in: ${left}`);
             imgInput.value = "";
             return;
         }
@@ -519,7 +556,7 @@
         if (!file) return;
 
         if (file.size > 2 * 1024 * 1024) {
-            alert("Image size must be under 2MB!");
+            alert("ERR: Payload exceeds 2MB limit.");
             return;
         }
 
@@ -541,10 +578,10 @@
     });
 
     async function sendMessage() {
-        if (!activeUser) return alert("Log in first!");
+        if (!activeUser) return alert("ERR: Not authenticated.");
         if (isMuted()) {
-            const left = currentUserData.muteExpires === -1 ? "Permanent" : formatTimeLeft(currentUserData.muteExpires - Date.now());
-            return alert(`You are muted! Time left: ${left}`);
+            const left = currentUserData.muteExpires === -1 ? "PERMANENT" : formatTimeLeft(currentUserData.muteExpires - Date.now());
+            return alert(`TX BLOCKED (Muted) | Clear in: ${left}`);
         }
         
         const text = msgInput.value.trim();
@@ -599,19 +636,19 @@
         const myLevel = parseInt(currentUserData.accessLevel || 1);
 
         if (myLevel >= 5) {
-            modButtonsHtml += `<button class="btn-mod" onclick="editMsg('${msgId}')">Edit</button>`;
-            modButtonsHtml += `<button class="btn-mod btn-danger" onclick="deleteMsg('${msgId}')">Delete</button>`;
+            modButtonsHtml += `<button class="btn-mod" onclick="editMsg('${msgId}')">EDIT</button>`;
+            modButtonsHtml += `<button class="btn-mod btn-danger" onclick="deleteMsg('${msgId}')">DEL</button>`;
         }
         if (myLevel >= 8) {
-            modButtonsHtml += `<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}', 'MUTE')">Mute</button>`;
-            modButtonsHtml += `<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}', 'BANIP')">Ban IP</button>`;
+            modButtonsHtml += `<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}', 'MUTE')">MUTE</button>`;
+            modButtonsHtml += `<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}', 'BANIP')">BAN</button>`;
         }
 
         let imageHtml = msgData.image ? `<img src="${msgData.image}" class="chat-image" />` : '';
 
         msgElement.innerHTML = `
             <div class="name">
-                <span>${escapeHTML(msgData.nickname)} <small style="color:#666">(@${escapeHTML(msgData.username)})</small></span>
+                <span>${escapeHTML(msgData.nickname)} <small style="color:#555">(@${escapeHTML(msgData.username)})</small></span>
                 <span class="user-tag ${tagClass}">[${escapeHTML(tagText)}]</span>
             </div>
             ${msgData.message ? `<div class="msg-body">${escapeHTML(msgData.message)}</div>` : ''}
@@ -624,7 +661,7 @@
     }
 
     window.editMsg = async (msgId) => {
-        const newText = prompt("Enter new message content:");
+        const newText = prompt("OVERWRITE TX:");
         if (newText && newText.trim() !== "") {
             await update(ref(db, `global_messages/${msgId}`), { message: newText.trim() });
             await appendToTxtLog('LOGS.txt', `[EDIT] User @${activeUser} edited message ID ${msgId} to: "${newText.trim()}"`);
@@ -632,20 +669,20 @@
     };
 
     window.deleteMsg = async (msgId) => {
-        if (confirm("Delete this message?")) {
+        if (confirm("PURGE TX?")) {
             await remove(ref(db, `global_messages/${msgId}`));
             await appendToTxtLog('LOGS.txt', `[DELETE] User @${activeUser} deleted message ID ${msgId}`);
         }
     };
 
     window.punishUser = async (targetUser, actionType) => {
-        const durationInput = prompt(`Enter ${actionType} duration in HOURS (0 for Permanent, 0.5 for 30m):`, "24");
+        const durationInput = prompt(`Set ${actionType} duration in HOURS (0 = Perm, 0.5 = 30m):`, "24");
         if (durationInput === null) return;
         
         const hours = parseFloat(durationInput);
-        if (isNaN(hours) || hours < 0) return alert("Invalid duration. Please enter a valid number.");
+        if (isNaN(hours) || hours < 0) return alert("ERR: Invalid duration.");
 
-        const reason = prompt(`Enter reason for ${actionType}:`, "Violating chat etiquette");
+        const reason = prompt(`Reason for ${actionType}:`, "TOS Violation");
         if (reason === null) return;
 
         const targetRef = ref(db, `users/${targetUser}`);
@@ -657,10 +694,10 @@
             await update(targetRef, { banned: true, banReason: reason, banExpires: expiresAt });
         }
 
-        const logEntry = `[${actionType}] Target: @${targetUser} | Hours: ${hours === 0 ? 'Perm' : hours} | Reason: "${reason}" | Executor: @${activeUser}`;
+        const logEntry = `[${actionType}] Target: @${targetUser} | Hrs: ${hours === 0 ? 'Perm' : hours} | Reason: "${reason}" | Exec: @${activeUser}`;
         await appendToTxtLog('LOGS.txt', logEntry);
 
-        alert(`${actionType} applied to @${targetUser} and logged!`);
+        alert(`EXECUTION COMPLETE: ${actionType} applied to @${targetUser}`);
     };
 
     function escapeHTML(str) {
