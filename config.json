@@ -1,14 +1,1 @@
-{
-  "server_name": "SimTX WebSDR",
-  "port": 8080,
-  "sources": [
-    {
-      "name": "SimTX Argon Node",
-      "type": "rtl_tcp",
-      "address": "argon.simtx.net",
-      "port": 1240,
-      "sample_rate": 250000,
-      "center_freq": 4625000
-    }
-  ]
-}
+0
