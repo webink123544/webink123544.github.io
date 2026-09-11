@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzstd-dev \
     libboost-all-dev \
     libopus-dev \
+    libcurl4-openssl-dev \
     psmisc \
     && rm -rf /var/lib/apt/lists/*
 
@@ -33,7 +34,6 @@ FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Installed using general package names to prevent exit code 100 on sub-version mismatches
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     libfftw3-single3 \
@@ -42,6 +42,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libboost-iostreams-dev \
     libzstd1 \
     libopus0 \
+    libcurl4 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
