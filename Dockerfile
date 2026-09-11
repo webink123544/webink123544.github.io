@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /build
 RUN git clone https://github.com/sv1btl/PhantomSDR-Plus.git .
 
-# Pass extra compiler flags to suppress treat-as-error warnings on GCC 12
+# Pass extra compiler flags to prevent warnings from breaking build on GCC 12
 RUN meson setup build --buildtype=release -Dc_args="-Wno-error" -Dcpp_args="-Wno-error" \
     && meson compile -C build
 
@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzstd1 \
     libopus0 \
     libcurl4 \
-    libliquid2d \
+    libliquid1d \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
