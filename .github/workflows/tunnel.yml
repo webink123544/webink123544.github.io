@@ -1,19 +1,19 @@
-name: Cloudflare Tunnel Relay
+name: TCP Relay Service
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 */5 * * *'
 
 jobs:
-  run-tunnel:
+  relay:
     runs-on: ubuntu-latest
     steps:
-      - name: Install cloudflared
+      - name: Install tools
         run: |
-          curl -L -o cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
-          sudo dpkg -i cloudflared.deb
+          sudo apt-get update && sudo apt-get install -y socat
+          curl -L https://github.com/ekzhang/bore/releases/download/v0.5.0/bore-v0.5.0-x86_64-unknown-linux-musl.tar.gz | tar -xz
+          sudo mv bore /usr/local/bin/
 
-      - name: Start Tunnel
+      - name: Start TCP Tunnel
         run: |
-          cloudflared tunnel run --token ${{ secrets.CLOUDFLARE_TOKEN }}
+          socat TCP-LISTEN:1240,fork,reuseaddr TCP:193.24.208.6:1240 &
+          bore local 1240 --to bore.pub
