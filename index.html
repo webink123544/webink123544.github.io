@@ -30,7 +30,6 @@
             to { opacity: 0; visibility: hidden; }
         }
 
-        /* Auth Modal Overlay */
         .auth-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -103,6 +102,15 @@
             color: #e5e5e5;
             position: relative;
         }
+
+        .msg img.chat-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-top: 8px;
+            display: block;
+            border: 1px solid #333;
+        }
         
         .msg .name { 
             font-size: 0.85rem; 
@@ -152,9 +160,10 @@
             background: #121212; 
             gap: 12px; 
             border-top: 1px solid #222222;
+            align-items: center;
         }
         
-        input { 
+        input[type="text"] { 
             padding: 12px 16px; 
             border: 1px solid #222222; 
             border-radius: 8px; 
@@ -165,8 +174,21 @@
             transition: border-color 0.2s;
         }
         
-        input:focus { border-color: #ef4444; }
+        input[type="text"]:focus { border-color: #ef4444; }
         
+        .img-upload-btn {
+            background: #222222;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .img-upload-btn:hover { background: #333; }
+
         button { 
             padding: 12px 24px; 
             border: none; 
@@ -189,7 +211,6 @@
     ⚠️ WARNING: NO RULES! CHAT AT YOUR OWN RISK! 💀
 </div>
 
-<!-- Auth Modal -->
 <div class="auth-overlay" id="authOverlay">
     <div class="auth-box">
         <h2 id="authTitle">🔑 Account Login</h2>
@@ -215,6 +236,10 @@
     </div>
     <div class="messages" id="messages"></div>
     <form class="input-area" id="chatForm" onsubmit="return false;" autocomplete="off">
+        <label class="img-upload-btn" title="Upload Image">
+            📷
+            <input type="file" id="imgInput" accept="image/*" style="display: none;">
+        </label>
         <input type="text" id="msgInput" placeholder="💬 Type a message..." style="flex: 1;" autocomplete="off">
         <button id="sendBtn" type="button">🚀 Send</button>
     </form>
@@ -238,9 +263,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const messagesRef = ref(db, 'global_messages');
-    const usersRef = ref(db, 'users');
 
-    // UI Elements
     const authOverlay = document.getElementById('authOverlay');
     const authTitle = document.getElementById('authTitle');
     const authUsername = document.getElementById('authUsername');
@@ -256,13 +279,13 @@
     
     const messagesContainer = document.getElementById('messages');
     const msgInput = document.getElementById('msgInput');
+    const imgInput = document.getElementById('imgInput');
     const sendBtn = document.getElementById('sendBtn');
 
     let currentMode = 'login';
     let activeUser = localStorage.getItem('anarchy_username') || null;
     let currentUserData = { accessLevel: 1, tag: 'MEMBER', nickname: 'Anonymous' };
 
-    // 1. One-time Initialization of txt files in Database
     async function initDatabaseFiles() {
         const files = ['TTLS.txt', 'ACL.txt', 'LOGS.txt'];
         for (const file of files) {
@@ -275,6 +298,23 @@
     }
     initDatabaseFiles();
 
+    async function loadUserProfile(username) {
+        const snapshot = await get(ref(db, `users/${username}`));
+        if (snapshot.exists()) {
+            currentUserData = snapshot.val();
+            // Ensure access level comparison converts to integer
+            currentUserData.accessLevel = parseInt(currentUserData.accessLevel || 1);
+            currentUserDisplay.textContent = `🎭 ${currentUserData.nickname} (@${username}) [${currentUserData.tag || 'MEMBER'}] Lvl:${currentUserData.accessLevel}`;
+            
+            // Re-render UI buttons once access level is retrieved
+            document.querySelectorAll('.msg').forEach(el => el.remove());
+            const msgSnap = await get(messagesRef);
+            if (msgSnap.exists()) {
+                Object.entries(msgSnap.val()).forEach(([key, val]) => renderMessage(key, val));
+            }
+        }
+    }
+
     if (activeUser) {
         authOverlay.style.display = 'none';
         loadUserProfile(activeUser);
@@ -285,7 +325,6 @@
         if (warning) warning.remove();
     }, 3500);
 
-    // Auth Mode Toggles
     authModeToggle.addEventListener('click', () => {
         if (currentMode === 'login') {
             currentMode = 'register';
@@ -328,7 +367,6 @@
 
             const recoveryCode = Math.floor(100000 + Math.random() * 900000).toString();
             
-            // Standard registration without auto-owner privileges
             await set(userRef, {
                 username: username,
                 nickname: nickname,
@@ -366,15 +404,6 @@
         authOverlay.style.display = 'none';
     }
 
-    async function loadUserProfile(username) {
-        const snapshot = await get(ref(db, `users/${username}`));
-        if (snapshot.exists()) {
-            currentUserData = snapshot.val();
-            currentUserDisplay.textContent = `🎭 ${currentUserData.nickname} (@${username}) [${currentUserData.tag || 'MEMBER'}]`;
-        }
-    }
-
-    // Change Public Nickname
     changeNickBtn.addEventListener('click', async () => {
         const newNick = prompt("Enter new public nickname:", currentUserData.nickname);
         if (newNick && newNick.trim() !== "") {
@@ -388,7 +417,6 @@
         location.reload();
     });
 
-    // Logging function targeting Firebase virtual txt logs
     async function appendToTxtLog(filename, logMessage) {
         const fileKey = filename.replace('.', '_');
         const fileRef = ref(db, `system_files/${fileKey}`);
@@ -398,13 +426,37 @@
         await set(fileRef, updatedContent);
     }
 
-    // Messaging Logic
+    // Image Upload Conversion
+    imgInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+            alert("Image size must be under 2MB!");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async () => {
+            const base64Img = reader.result;
+            await push(messagesRef, {
+                username: activeUser,
+                nickname: currentUserData.nickname || activeUser,
+                userTag: currentUserData.tag || "MEMBER",
+                accessLevel: currentUserData.accessLevel || 1,
+                message: "",
+                image: base64Img,
+                timestamp: Date.now()
+            });
+        };
+        reader.readAsDataURL(file);
+        imgInput.value = "";
+    });
+
     async function sendMessage() {
         if (!activeUser) return alert("Log in first!");
         const text = msgInput.value.trim();
         if (text === "") return;
-
-        await loadUserProfile(activeUser); // Ensure latest profile state
 
         push(messagesRef, {
             username: activeUser,
@@ -421,7 +473,6 @@
     sendBtn.addEventListener('click', sendMessage);
     msgInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 
-    // Render Messages with Permissions Actions
     onChildAdded(messagesRef, (data) => renderMessage(data.key, data.val()));
 
     onChildChanged(messagesRef, (data) => {
@@ -438,37 +489,41 @@
     });
 
     function renderMessage(msgId, msgData) {
+        if (document.getElementById(`msg-${msgId}`)) return;
+
         const msgElement = document.createElement('div');
         msgElement.classList.add('msg');
         msgElement.id = `msg-${msgId}`;
         
         const tagText = msgData.userTag || "MEMBER";
-        const level = msgData.accessLevel || 1;
+        const level = parseInt(msgData.accessLevel || 1);
         
         let tagClass = 'tag-default';
         if (level >= 10 || tagText.toUpperCase() === 'OWNER') tagClass = 'tag-owner';
         else if (level >= 8 || tagText.toUpperCase() === 'ADMIN') tagClass = 'tag-admin';
         else if (level >= 5 || tagText.toUpperCase() === 'MOD') tagClass = 'tag-mod';
 
-        // Action Toolbar according to Access Level
         let modButtonsHtml = '';
-        const myLevel = currentUserData.accessLevel || 1;
+        const myLevel = parseInt(currentUserData.accessLevel || 1);
 
-        if (myLevel >= 5) { // Mod / Edit / Delete access
+        if (myLevel >= 5) {
             modButtonsHtml += `<button class="btn-mod" onclick="editMsg('${msgId}')">Edit</button>`;
             modButtonsHtml += `<button class="btn-mod btn-danger" onclick="deleteMsg('${msgId}')">Delete</button>`;
         }
-        if (myLevel >= 8) { // Admin / Mute / BanIP access
+        if (myLevel >= 8) {
             modButtonsHtml += `<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}', 'MUTE')">Mute</button>`;
             modButtonsHtml += `<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}', 'BANIP')">Ban IP</button>`;
         }
+
+        let imageHtml = msgData.image ? `<img src="${msgData.image}" class="chat-image" />` : '';
 
         msgElement.innerHTML = `
             <div class="name">
                 <span>${escapeHTML(msgData.nickname)} <small style="color:#666">(@${escapeHTML(msgData.username)})</small></span>
                 <span class="user-tag ${tagClass}">[${escapeHTML(tagText)}]</span>
             </div>
-            <div class="msg-body">${escapeHTML(msgData.message)}</div>
+            ${msgData.message ? `<div class="msg-body">${escapeHTML(msgData.message)}</div>` : ''}
+            ${imageHtml}
             ${modButtonsHtml ? `<div class="mod-actions">${modButtonsHtml}</div>` : ''}
         `;
         
@@ -476,7 +531,6 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // Global Action Handlers
     window.editMsg = async (msgId) => {
         const newText = prompt("Enter new message content:");
         if (newText && newText.trim() !== "") {
