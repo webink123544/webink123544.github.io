@@ -15,5 +15,5 @@ jobs:
 
       - name: Start TCP Tunnel
         run: |
-          socat TCP-LISTEN:1240,fork,reuseaddr TCP:193.24.208.6:1240 &
+          socat TCP-LISTEN:1240,fork,reuseaddr,nodelay TCP:193.24.208.6:1240,nodelay &
           bore local 1240 --to bore.pub
