@@ -1,59 +1,7 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OpenWebRX SDR Player</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body, html { width: 100%; height: 100%; background: #0e0e10; overflow: hidden; font-family: monospace; }
-    
-    .sdr-wrapper {
-      width: 100%;
-      height: 100vh;
-      position: relative;
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-    }
-
-    /* Подсказка для пользователя, если iframe заблокирован сервером */
-    .fallback-bar {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 999;
-      background: rgba(18, 19, 24, 0.9);
-      border: 1px solid #3b82f6;
-      padding: 6px 12px;
-      border-radius: 4px;
-      color: #ccc;
-      font-size: 12px;
-    }
-
-    .fallback-bar a {
-      color: #60a5fa;
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="sdr-wrapper">
-    <div class="fallback-bar">
-      Приемник недоступен во фрейме? <a href="https://openwebrx-relay-b2tpg.sprites.app/#freq=4625000,mod=usb,sql=-150" target="_blank">Открыть напрямую ↗</a>
-    </div>
-
-    <iframe 
-      src="https://openwebrx-relay-b2tpg.sprites.app/#freq=4625000,mod=usb,sql=-150" 
-      allow="autoplay; microphone; clipboard-write; encrypted-media"
-      sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-same-origin allow-scripts">
-    </iframe>
-  </div>
-
-</body>
-</html>
+<div class="sdr-panel" style="width:100%; height:100vh;">
+  <iframe 
+    src="https://corsproxy.io/?https%3A%2F%2Fopenwebrx-relay-b2tpg.sprites.app%2F%23freq%3D4625000%2Cmod%3Dusb%2Csql%3D-150" 
+    style="width:100%; height:100%; border:none;" 
+    allow="autoplay; microphone">
+  </iframe>
+</div>
