@@ -1,7 +1,23 @@
-<div class="sdr-panel" style="width:100%; height:100vh;">
-  <iframe 
-    src="https://corsproxy.io/?https%3A%2F%2Fopenwebrx-relay-b2tpg.sprites.app%2F%23freq%3D4625000%2Cmod%3Dusb%2Csql%3D-150" 
-    style="width:100%; height:100%; border:none;" 
-    allow="autoplay; microphone">
-  </iframe>
+<div class="sdr-panel" style="width: 100%; height: 100%; background: #000; position: relative;">
+  <iframe id="sdrFrame" style="width: 100%; height: 100%; border: none;" allow="autoplay; microphone"></iframe>
 </div>
+
+<script>
+  (async function loadEmbeddedSDR() {
+    const targetUrl = 'https://openwebrx-relay-b2tpg.sprites.app/#freq=4625000,mod=usb,sql=-150';
+    const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl);
+
+    try {
+      const response = await fetch(proxyUrl);
+      let html = await response.text();
+      
+      // Исправляем относительные пути скриптов и стилей
+      html = html.replace(/<head>/i, `<head><base href="https://openwebrx-relay-b2tpg.sprites.app/">`);
+
+      const iframe = document.getElementById('sdrFrame');
+      iframe.srcdoc = html;
+    } catch (err) {
+      console.error('Ошибка загрузки SDR:', err);
+    }
+  })();
+</script>
