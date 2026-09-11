@@ -1,0 +1,19 @@
+name: Cloudflare Tunnel Relay
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */5 * * *'
+
+jobs:
+  run-tunnel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install cloudflared
+        run: |
+          curl -L -o cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+          sudo dpkg -i cloudflared.deb
+
+      - name: Start Tunnel
+        run: |
+          cloudflared tunnel run --token ${{ secrets.CLOUDFLARE_TOKEN }}
