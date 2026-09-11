@@ -1,1887 +1,595 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anarchy Relay // WebSDR</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco,
-                Consolas, "Liberation Mono", "Courier New", monospace;
-        }
-
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #050505;
-            color: #d4d4d4;
-            font-size: 0.85rem;
-        }
-
-        /* ============================================
-           MAIN APPLICATION
-           ============================================ */
-
-        .app {
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            background: #050505;
-        }
-
-        /* ============================================
-           WEB SDR
-           85% OF SCREEN
-           ============================================ */
-
-        .sdr-panel {
-            width: 85%;
-            height: 100%;
-            background: #000;
-            position: relative;
-            overflow: hidden;
-            border-right: 1px solid #1f1f1f;
-        }
-
-        .sdr-frame {
-            width: 100%;
-            height: 100%;
-            border: 0;
-            display: block;
-            background: #000;
-        }
-
-        /* ============================================
-           CHAT
-           15% OF SCREEN
-           ============================================ */
-
-        .chat-panel {
-            width: 15%;
-            min-width: 260px;
-            height: 100%;
-            background: #080808;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .chat-header {
-            flex: 0 0 auto;
-            background: #0a0a0a;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-            border-bottom: 1px solid #1f1f1f;
-        }
-
-        .header-title {
-            color: #dc2626;
-            letter-spacing: 0.7px;
-            font-weight: bold;
-            font-size: 0.68rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .header-user-row {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            min-width: 0;
-        }
-
-        #currentUser {
-            flex: 1;
-            min-width: 0;
-            font-size: 0.6rem;
-            color: #666;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        /* ============================================
-           MESSAGES
-           ============================================ */
-
-        .messages {
-            flex: 1;
-            min-height: 0;
-            padding: 8px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            background: #000000;
-        }
-
-        .msg {
-            background: #0a0a0a;
-            padding: 7px 8px;
-            border-radius: 2px;
-            width: 100%;
-            max-width: 100%;
-            word-break: break-word;
-            border: 1px solid #161616;
-            color: #d4d4d4;
-            font-size: 0.67rem;
-            line-height: 1.35;
-        }
-
-        .msg img.chat-image {
-            max-width: 100%;
-            max-height: 180px;
-            object-fit: contain;
-            border-radius: 2px;
-            margin-top: 5px;
-            display: block;
-            border: 1px solid #222;
-        }
-
-        .msg .name {
-            font-size: 0.63rem;
-            color: #ef4444;
-            font-weight: bold;
-            margin-bottom: 3px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-
-        .msg-body {
-            overflow-wrap: anywhere;
-        }
-
-        /* ============================================
-           USER TAGS
-           ============================================ */
-
-        .user-tag {
-            font-size: 0.48rem;
-            padding: 2px 3px;
-            border-radius: 2px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .tag-owner {
-            background: #991b1b;
-            color: #ffffff;
-        }
-
-        .tag-admin {
-            background: #c2410c;
-            color: #ffffff;
-        }
-
-        .tag-mod {
-            background: #15803d;
-            color: #ffffff;
-        }
-
-        .tag-default {
-            background: #1f2937;
-            color: #9ca3af;
-        }
-
-        /* ============================================
-           MODERATION
-           ============================================ */
-
-        .mod-actions {
-            margin-top: 5px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 3px;
-        }
-
-        .btn-mod {
-            background: #1a1a1a;
-            color: #888;
-            border: 1px solid #2a2a2a;
-            padding: 2px 4px;
-            border-radius: 2px;
-            cursor: pointer;
-            font-size: 0.5rem;
-        }
-
-        .btn-mod:hover {
-            background: #2a2a2a;
-            color: #ccc;
-        }
-
-        .btn-danger:hover {
-            background: #991b1b;
-            color: #fff;
-            border-color: #991b1b;
-        }
-
-        /* ============================================
-           INPUT
-           ============================================ */
-
-        .input-area {
-            flex: 0 0 auto;
-            display: flex;
-            padding: 6px;
-            background: #0a0a0a;
-            gap: 4px;
-            border-top: 1px solid #1f1f1f;
-            align-items: center;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 6px 7px;
-            border: 1px solid #1f1f1f;
-            border-radius: 2px;
-            background: #050505;
-            color: #d4d4d4;
-            outline: none;
-            font-size: 0.65rem;
-            transition: border-color 0.2s;
-        }
-
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            border-color: #ef4444;
-        }
-
-        #msgInput {
-            min-width: 0;
-            flex: 1;
-        }
-
-        .img-upload-btn {
-            flex: 0 0 auto;
-            background: #161616;
-            color: #888;
-            padding: 6px 7px;
-            border-radius: 2px;
-            cursor: pointer;
-            border: 1px solid #2a2a2a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.55rem;
-            font-weight: bold;
-        }
-
-        .img-upload-btn:hover {
-            background: #2a2a2a;
-            color: #ccc;
-        }
-
-        button {
-            padding: 6px 8px;
-            border: none;
-            border-radius: 2px;
-            background: #991b1b;
-            color: #ffffff;
-            font-weight: bold;
-            font-size: 0.62rem;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        button:hover {
-            background: #7f1d1d;
-        }
-
-        .btn-small {
-            padding: 4px 5px;
-            font-size: 0.5rem;
-            flex: 0 0 auto;
-        }
-
-        #sendBtn {
-            padding: 6px 7px;
-            flex: 0 0 auto;
-        }
-
-        .send-btn-icon {
-            width: 13px;
-            height: 13px;
-            object-fit: contain;
-            display: block;
-        }
-
-        /* ============================================
-           AUTH
-           ============================================ */
-
-        .auth-overlay,
-        .banned-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .banned-overlay {
-            z-index: 3000;
-        }
-
-        .auth-box,
-        .banned-box {
-            background: #0a0a0a;
-            padding: 20px;
-            border-radius: 2px;
-            border: 1px solid #1f1f1f;
-            width: min(90%, 350px);
-            text-align: center;
-        }
-
-        .banned-box {
-            border-color: #991b1b;
-        }
-
-        .banned-box h2 {
-            color: #dc2626;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-            letter-spacing: 1px;
-        }
-
-        .banned-box p {
-            color: #888;
-            font-size: 0.8rem;
-            margin-bottom: 5px;
-        }
-
-        .time-left-text {
-            color: #ef4444;
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-
-        .auth-box h2 {
-            margin-bottom: 15px;
-            color: #dc2626;
-            letter-spacing: 1px;
-            font-size: 1.1rem;
-        }
-
-        .auth-box input {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .auth-box button {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .auth-toggle {
-            font-size: 0.75rem;
-            color: #666;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .auth-toggle:hover {
-            color: #aaa;
-        }
-
-        /* ============================================
-           WARNING
-           ============================================ */
-
-        .warning-popup {
-            position: fixed;
-            top: 20px;
-            right: calc(15% + 15px);
-            background: #991b1b;
-            color: #ffffff;
-            padding: 8px 16px;
-            border-radius: 2px;
-            font-weight: bold;
-            box-shadow: 0 2px 10px rgba(153, 27, 27, 0.4);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.8rem;
-            animation: fadeOut 0.5s ease 3s forwards;
-        }
-
-        @keyframes fadeOut {
-            to {
-                opacity: 0;
-                visibility: hidden;
-            }
-        }
-
-        /* ============================================
-           SCROLLBAR
-           ============================================ */
-
-        .messages::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .messages::-webkit-scrollbar-track {
-            background: #050505;
-        }
-
-        .messages::-webkit-scrollbar-thumb {
-            background: #222;
-        }
-
-        .messages::-webkit-scrollbar-thumb:hover {
-            background: #333;
-        }
-
-        /* ============================================
-           SMALL SCREENS
-           ============================================ */
-
-        @media (max-width: 900px) {
-            .app {
-                flex-direction: column;
-                overflow-y: auto;
-            }
-
-            .sdr-panel {
-                width: 100%;
-                height: 75vh;
-                min-height: 450px;
-                border-right: 0;
-                border-bottom: 1px solid #1f1f1f;
-            }
-
-            .chat-panel {
-                width: 100%;
-                height: 25vh;
-                min-width: 0;
-            }
-
-            .warning-popup {
-                right: 50%;
-                transform: translateX(50%);
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anarchy Relay</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+html,body{width:100%;height:100%;overflow:hidden;background:#050505;color:#d4d4d4;font-size:.85rem}
+
+/* ===== MAIN LAYOUT ===== */
+.app{width:100vw;height:100vh;display:flex;background:#050505}
+.sdr-panel{width:var(--sdr-width);height:100%;background:#000;overflow:hidden;border-right:1px solid #1f1f1f}
+.sdr-frame{width:100%;height:100%;border:0;display:block;background:#000}
+.chat-panel{width:var(--chat-width);min-width:280px;height:100%;background:#080808;display:flex;flex-direction:column;overflow:hidden}
+
+/* ===== CHAT HEADER ===== */
+.chat-header{padding:11px;border-bottom:1px solid #1f1f1f;background:#0a0a0a}
+.header-title{color:#dc2626;font-weight:bold;letter-spacing:.7px;font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-user-row{display:flex;align-items:center;gap:5px;margin-top:7px}
+#currentUser{flex:1;min-width:0;color:#777;font-size:.68rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ===== MESSAGES ===== */
+.messages{flex:1;min-height:0;padding:9px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;background:#000}
+.msg{background:#0a0a0a;padding:8px 9px;border:1px solid #161616;border-radius:2px;width:100%;max-width:100%;word-break:break-word;color:#d4d4d4;font-size:var(--chat-font);line-height:1.4}
+.msg img.chat-image{max-width:100%;max-height:var(--image-height);display:block;margin-top:6px;border:1px solid #222;border-radius:2px;object-fit:contain}
+.msg .name{font-size:.72rem;color:#ef4444;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.msg-body{overflow-wrap:anywhere}
+.user-tag{font-size:.55rem;padding:2px 4px;border-radius:2px;font-weight:bold;text-transform:uppercase;letter-spacing:.3px}
+.tag-owner{background:#991b1b;color:#fff}.tag-admin{background:#c2410c;color:#fff}.tag-mod{background:#15803d;color:#fff}.tag-default{background:#1f2937;color:#9ca3af}
+
+/* ===== MODERATION ===== */
+.mod-actions{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+.btn-mod{background:#1a1a1a;color:#888;border:1px solid #2a2a2a;padding:3px 5px;border-radius:2px;cursor:pointer;font-size:.58rem}
+.btn-mod:hover{background:#2a2a2a;color:#ccc}.btn-danger:hover{background:#991b1b;color:#fff;border-color:#991b1b}
+
+/* ===== INPUT ===== */
+.input-area{display:flex;padding:7px;background:#0a0a0a;gap:5px;border-top:1px solid #1f1f1f;align-items:center}
+input[type=text],input[type=password]{padding:7px 8px;border:1px solid #1f1f1f;border-radius:2px;background:#050505;color:#d4d4d4;outline:none;font-size:.73rem;transition:border-color .2s}
+input[type=text]:focus,input[type=password]:focus{border-color:#ef4444}
+#msgInput{min-width:0;flex:1}
+.img-upload-btn{background:#161616;color:#999;padding:7px 8px;border-radius:2px;cursor:pointer;border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:bold}
+.img-upload-btn:hover{background:#2a2a2a;color:#ccc}
+button{padding:7px 9px;border:0;border-radius:2px;background:#991b1b;color:#fff;font-weight:bold;font-size:.66rem;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;justify-content:center}
+button:hover{background:#7f1d1d}.btn-small{padding:4px 6px;font-size:.55rem}
+#sendBtn{padding:7px 8px}.send-btn-icon{width:14px;height:14px;object-fit:contain;display:block}
+
+/* ===== AUTH / BAN ===== */
+.auth-overlay,.banned-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);display:flex;justify-content:center;align-items:center;z-index:2000}
+.banned-overlay{z-index:3000}
+.auth-box,.banned-box{background:#0a0a0a;padding:20px;border-radius:2px;border:1px solid #1f1f1f;width:90%;max-width:350px;text-align:center}
+.banned-box{border-color:#991b1b}.banned-box h2{color:#dc2626;margin-bottom:10px;font-size:1.1rem;letter-spacing:1px}.banned-box p{color:#888;font-size:.8rem;margin-bottom:5px}
+.time-left-text{color:#ef4444;font-weight:bold;font-size:.9rem;margin-bottom:15px}
+.auth-box h2{margin-bottom:15px;color:#dc2626;letter-spacing:1px;font-size:1.1rem}
+.auth-box input,.auth-box button{width:100%;margin-bottom:10px}
+.auth-toggle{font-size:.75rem;color:#666;cursor:pointer;text-decoration:underline}.auth-toggle:hover{color:#aaa}
+
+/* ===== WARNING ===== */
+.warning-popup{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#991b1b;color:#fff;padding:8px 16px;border-radius:2px;font-weight:bold;box-shadow:0 2px 10px rgba(153,27,27,.4);z-index:1000;font-size:.8rem;animation:fadeOut .5s ease var(--warning-time) forwards}
+@keyframes fadeOut{to{opacity:0;visibility:hidden}}
+
+/* ===== SCROLLBAR ===== */
+.messages::-webkit-scrollbar{width:5px}.messages::-webkit-scrollbar-track{background:#050505}.messages::-webkit-scrollbar-thumb{background:#222}.messages::-webkit-scrollbar-thumb:hover{background:#333}
+
+/* ===== MOBILE ===== */
+@media(max-width:900px){
+.app{flex-direction:column;overflow-y:auto}.sdr-panel{width:100%;height:72vh;min-height:400px;border-right:0;border-bottom:1px solid #1f1f1f}.chat-panel{width:100%;height:28vh;min-width:0}
+}
+</style>
 </head>
 
 <body>
 
-    <div class="app">
-
-        <!-- ==========================================
-             WEB SDR — 85%
-             ========================================== -->
-
-        <section class="sdr-panel">
-            <iframe
-                class="sdr-frame"
-                src="https://sdrproxy.xghvaladze.workers.dev/"
-                allow="autoplay; microphone; fullscreen"
-                referrerpolicy="no-referrer"
-                title="OpenWebRX WebSDR">
-            </iframe>
-        </section>
-
-        <!-- ==========================================
-             CHAT — 15%
-             ========================================== -->
-
-        <aside class="chat-panel">
-
-            <div class="chat-header">
-
-                <div class="header-title">
-                    [ ANARCHY_NET // RELAY_01 ]
-                </div>
-
-                <div class="header-user-row">
-
-                    <span id="currentUser"></span>
-
-                    <button
-                        id="changeNickBtn"
-                        class="btn-small"
-                        style="background:#1f2937;">
-                        Alias
-                    </button>
-
-                    <button
-                        id="logoutBtn"
-                        class="btn-small">
-                        Exit
-                    </button>
-
-                </div>
-
-            </div>
-
-            <div class="messages" id="messages"></div>
-
-            <form
-                class="input-area"
-                id="chatForm"
-                onsubmit="return false;"
-                autocomplete="off">
-
-                <label
-                    class="img-upload-btn"
-                    title="Upload Image">
-
-                    [IMG]
-
-                    <input
-                        type="file"
-                        id="imgInput"
-                        accept="image/*"
-                        style="display:none;">
-                </label>
-
-                <input
-                    type="text"
-                    id="msgInput"
-                    placeholder="Broadcast..."
-                    autocomplete="off">
-
-                <button
-                    id="sendBtn"
-                    type="button"
-                    title="Send Message">
-
-                    <img
-                        src="send.png"
-                        alt="Send"
-                        class="send-btn-icon">
-                </button>
-
-            </form>
-
-        </aside>
-
-    </div>
-
-    <!-- ==============================================
-         WARNING
-         ============================================== -->
-
-    <div class="warning-popup" id="warning">
-        [!] UNMODERATED ZONE: PROCEED WITH CAUTION
-    </div>
-
-    <!-- ==============================================
-         BANNED OVERLAY
-         ============================================== -->
-
-    <div
-        class="banned-overlay"
-        id="bannedOverlay"
-        style="display:none;">
-
-        <div class="banned-box">
-
-            <h2>ACCESS RESTRICTED</h2>
-
-            <p id="banReasonText">
-                Connection rejected by host.
-            </p>
-
-            <div
-                id="banTimeLeft"
-                class="time-left-text">
-                Calculating...
-            </div>
-
-            <button id="bannedLogoutBtn">
-                Disconnect
-            </button>
-
-        </div>
-
-    </div>
-
-    <!-- ==============================================
-         AUTH OVERLAY
-         ============================================== -->
-
-    <div
-        class="auth-overlay"
-        id="authOverlay">
-
-        <div class="auth-box">
-
-            <h2 id="authTitle">
-                A U T H E N T I C A T E
-            </h2>
-
-            <input
-                type="text"
-                id="authUsername"
-                placeholder="Root ID (Username)"
-                autocomplete="off">
-
-            <input
-                type="text"
-                id="authNickname"
-                placeholder="Display Alias"
-                autocomplete="off"
-                style="display:none;">
-
-            <input
-                type="password"
-                id="authPin"
-                placeholder="4-Digit PIN Key"
-                maxlength="8"
-                autocomplete="off">
-
-            <input
-                type="text"
-                id="authRecoveryCode"
-                placeholder="Override Code"
-                style="display:none;"
-                autocomplete="off">
-
-            <button id="authPrimaryBtn">
-                Initialize
-            </button>
-
-            <p
-                class="auth-toggle"
-                id="authResetToggle"
-                style="margin-bottom:8px;">
-                Lost PIN? Initiate Override
-            </p>
-
-            <p
-                class="auth-toggle"
-                id="authModeToggle">
-                New Identity? Register
-            </p>
-
-        </div>
-
-    </div>
-
-    <!-- ==============================================
-         FIREBASE / CHAT LOGIC
-         ============================================== -->
-
-    <script type="module">
-
-        import {
-            initializeApp
-        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-
-        import {
-            getDatabase,
-            ref,
-            push,
-            onChildAdded,
-            onChildChanged,
-            onChildRemoved,
-            get,
-            set,
-            update,
-            remove,
-            onValue
-        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDFzJR2Yg2Z5VS5PEX7S8fDBTS8J49hfJM",
-            authDomain: "chatprojecttest-fed60.firebaseapp.com",
-            databaseURL: "https://chatprojecttest-fed60-default-rtdb.firebaseio.com/",
-            projectId: "chatprojecttest-fed60",
-            storageBucket: "chatprojecttest-fed60.firebasestorage.app",
-            messagingSenderId: "888428258274",
-            appId: "1:888428258274:web:bc3a453ba34208992f4fbb",
-            measurementId: "G-GTY7Y12J65"
-        };
-
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const messagesRef = ref(db, "global_messages");
-
-
-        const authOverlay = document.getElementById("authOverlay");
-        const bannedOverlay = document.getElementById("bannedOverlay");
-
-        const banReasonText =
-            document.getElementById("banReasonText");
-
-        const banTimeLeft =
-            document.getElementById("banTimeLeft");
-
-        const bannedLogoutBtn =
-            document.getElementById("bannedLogoutBtn");
-
-        const authTitle =
-            document.getElementById("authTitle");
-
-        const authUsername =
-            document.getElementById("authUsername");
-
-        const authNickname =
-            document.getElementById("authNickname");
-
-        const authPin =
-            document.getElementById("authPin");
-
-        const authRecoveryCode =
-            document.getElementById("authRecoveryCode");
-
-        const authPrimaryBtn =
-            document.getElementById("authPrimaryBtn");
-
-        const authModeToggle =
-            document.getElementById("authModeToggle");
-
-        const authResetToggle =
-            document.getElementById("authResetToggle");
-
-        const currentUserDisplay =
-            document.getElementById("currentUser");
-
-        const logoutBtn =
-            document.getElementById("logoutBtn");
-
-        const changeNickBtn =
-            document.getElementById("changeNickBtn");
-
-        const messagesContainer =
-            document.getElementById("messages");
-
-        const msgInput =
-            document.getElementById("msgInput");
-
-        const imgInput =
-            document.getElementById("imgInput");
-
-        const sendBtn =
-            document.getElementById("sendBtn");
-
-
-        let currentMode = "login";
-
-        let activeUser =
-            localStorage.getItem("anarchy_username") || null;
-
-        let currentUserData = {
-            accessLevel: 1,
-            tag: "MEMBER",
-            nickname: "Anon",
-            muted: false,
-            banned: false
-        };
-
-        let banTimerInterval = null;
-
-
-        async function initDatabaseFiles() {
-
-            const files = [
-                "TTLS.txt",
-                "ACL.txt",
-                "LOGS.txt"
-            ];
-
-            for (const file of files) {
-
-                const fileRef = ref(
-                    db,
-                    `system_files/${file.replace(".", "_")}`
-                );
-
-                const snap = await get(fileRef);
-
-                if (!snap.exists()) {
-
-                    await set(
-                        fileRef,
-                        `[INITIALIZED ${file} AT ${new Date().toISOString()}]\n`
-                    );
-
-                }
-
-            }
-
-        }
-
-
-        initDatabaseFiles();
-
-
-        function formatTimeLeft(ms) {
-
-            const totalSeconds =
-                Math.floor(ms / 1000);
-
-            const d =
-                Math.floor(totalSeconds / 86400);
-
-            const h =
-                Math.floor(
-                    (totalSeconds % 86400) / 3600
-                );
-
-            const m =
-                Math.floor(
-                    (totalSeconds % 3600) / 60
-                );
-
-            const s =
-                totalSeconds % 60;
-
-            let res = "";
-
-            if (d > 0) res += d + "d ";
-            if (h > 0) res += h + "h ";
-            if (m > 0) res += m + "m ";
-
-            res += s + "s";
-
-            return res.trim();
-        }
-
-
-        function checkBanStatus() {
-
-            if (banTimerInterval)
-                clearInterval(banTimerInterval);
-
-            if (currentUserData.banned) {
-
-                if (
-                    currentUserData.banExpires !== -1 &&
-                    Date.now() > currentUserData.banExpires
-                ) {
-
-                    update(
-                        ref(db, `users/${activeUser}`),
-                        { banned: false }
-                    );
-
-                    bannedOverlay.style.display = "none";
-
-                    return;
-                }
-
-
-                banReasonText.textContent =
-                    `Reason: ${
-                        currentUserData.banReason ||
-                        "SysAdmin Override"
-                    }`;
-
-                bannedOverlay.style.display = "flex";
-
-
-                if (
-                    currentUserData.banExpires === -1
-                ) {
-
-                    banTimeLeft.textContent =
-                        "Lock: PERMANENT";
-
-                } else {
-
-                    banTimerInterval =
-                        setInterval(
-                            updateBanTimer,
-                            1000
-                        );
-
-                    updateBanTimer();
-
-                }
-
-            } else {
-
-                bannedOverlay.style.display = "none";
-
-            }
-
-        }
-
-
-        function updateBanTimer() {
-
-            if (
-                !currentUserData.banned ||
-                currentUserData.banExpires === -1
-            ) {
-                return;
-            }
-
-            const remaining =
-                currentUserData.banExpires -
-                Date.now();
-
-            if (remaining <= 0) {
-
-                clearInterval(banTimerInterval);
-
-                checkBanStatus();
-
-            } else {
-
-                banTimeLeft.textContent =
-                    "T-Minus: " +
-                    formatTimeLeft(remaining);
-
-            }
-
-        }
-
-
-        function isMuted() {
-
-            if (!currentUserData.muted)
-                return false;
-
-            if (
-                currentUserData.muteExpires !== -1 &&
-                Date.now() > currentUserData.muteExpires
-            ) {
-
-                update(
-                    ref(db, `users/${activeUser}`),
-                    { muted: false }
-                );
-
-                currentUserData.muted = false;
-
-                return false;
-            }
-
-            return true;
-        }
-
-
-        function listenToUserStatus(username) {
-
-            onValue(
-                ref(db, `users/${username}`),
-                (snapshot) => {
-
-                    if (!snapshot.exists())
-                        return;
-
-                    currentUserData =
-                        snapshot.val();
-
-                    currentUserData.accessLevel =
-                        parseInt(
-                            currentUserData.accessLevel || 1
-                        );
-
-                    currentUserDisplay.textContent =
-                        `${currentUserData.nickname} (@${username}) [Lvl:${currentUserData.accessLevel}]`;
-
-                    checkBanStatus();
-
-                }
-            );
-
-        }
-
-
-        if (activeUser) {
-
-            authOverlay.style.display = "none";
-
-            listenToUserStatus(activeUser);
-
-        }
-
-
-        setTimeout(() => {
-
-            const warning =
-                document.getElementById("warning");
-
-            if (warning)
-                warning.remove();
-
-        }, 3500);
-
-
-        authModeToggle.addEventListener(
-            "click",
-            () => {
-
-                if (currentMode === "login") {
-
-                    currentMode = "register";
-
-                    authTitle.textContent =
-                        "N E W   I D E N T I T Y";
-
-                    authPrimaryBtn.textContent =
-                        "Register";
-
-                    authModeToggle.textContent =
-                        "Return to Auth";
-
-                    authNickname.style.display =
-                        "block";
-
-                    authRecoveryCode.style.display =
-                        "none";
-
-                } else {
-
-                    currentMode = "login";
-
-                    authTitle.textContent =
-                        "A U T H E N T I C A T E";
-
-                    authPrimaryBtn.textContent =
-                        "Initialize";
-
-                    authModeToggle.textContent =
-                        "New Identity? Register";
-
-                    authNickname.style.display =
-                        "none";
-
-                    authRecoveryCode.style.display =
-                        "none";
-
-                }
-
-            }
-        );
-
-
-        authResetToggle.addEventListener(
-            "click",
-            () => {
-
-                currentMode = "reset";
-
-                authTitle.textContent =
-                    "P I N   O V E R R I D E";
-
-                authPrimaryBtn.textContent =
-                    "Update Key";
-
-                authRecoveryCode.style.display =
-                    "block";
-
-                authNickname.style.display =
-                    "none";
-
-            }
-        );
-
-
-        authPrimaryBtn.addEventListener(
-            "click",
-            async () => {
-
-                const username =
-                    authUsername.value
-                        .trim()
-                        .toLowerCase();
-
-                const nickname =
-                    authNickname.value
-                        .trim() || username;
-
-                const pin =
-                    authPin.value.trim();
-
-                const recCode =
-                    authRecoveryCode.value.trim();
-
-
-                if (!username || !pin)
-                    return alert(
-                        "ERR: Missing parameters."
-                    );
-
-
-                const userRef =
-                    ref(db, `users/${username}`);
-
-
-                if (currentMode === "register") {
-
-                    const userSnap =
-                        await get(userRef);
-
-                    if (userSnap.exists())
-                        return alert(
-                            "ERR: ID exists."
-                        );
-
-
-                    const recoveryCode =
-                        Math.floor(
-                            100000 +
-                            Math.random() * 900000
-                        ).toString();
-
-
-                    await set(userRef, {
-
-                        username,
-                        nickname,
-                        pin,
-                        recoveryCode,
-
-                        tag: "MEMBER",
-                        accessLevel: 1,
-
-                        muted: false,
-                        banned: false
-
-                    });
-
-
-                    alert(
-                        `REGISTRATION COMPLETE\n\nSave Override Code:\n${recoveryCode}`
-                    );
-
-                    loginUser(username);
-
-                }
-
-                else if (currentMode === "login") {
-
-                    const snapshot =
-                        await get(userRef);
-
-                    if (!snapshot.exists())
-                        return alert(
-                            "ERR: Unknown ID."
-                        );
-
-                    if (
-                        snapshot.val().pin !== pin
-                    )
-                        return alert(
-                            "ERR: Invalid PIN."
-                        );
-
-                    loginUser(username);
-
-                }
-
-                else if (currentMode === "reset") {
-
-                    const snapshot =
-                        await get(userRef);
-
-                    if (!snapshot.exists())
-                        return alert(
-                            "ERR: Unknown ID."
-                        );
-
-                    if (
-                        snapshot.val().recoveryCode !== recCode
-                    )
-                        return alert(
-                            "ERR: Invalid Override Code."
-                        );
-
-
-                    await update(
-                        userRef,
-                        { pin }
-                    );
-
-                    alert(
-                        "PIN UPDATED. INITIALIZING..."
-                    );
-
-                    loginUser(username);
-
-                }
-
-            }
-        );
-
-
-        function loginUser(username) {
-
-            activeUser = username;
-
-            localStorage.setItem(
-                "anarchy_username",
-                username
-            );
-
-            listenToUserStatus(username);
-
-            authOverlay.style.display =
-                "none";
-
-        }
-
-
-        changeNickBtn.addEventListener(
-            "click",
-            async () => {
-
-                const newNick = prompt(
-                    "Enter new Alias:",
-                    currentUserData.nickname
-                );
-
-                if (
-                    newNick &&
-                    newNick.trim() !== ""
-                ) {
-
-                    await update(
-                        ref(db, `users/${activeUser}`),
-                        {
-                            nickname:
-                                newNick.trim()
-                        }
-                    );
-
-                }
-
-            }
-        );
-
-
-        logoutBtn.addEventListener(
-            "click",
-            performLogout
-        );
-
-        bannedLogoutBtn.addEventListener(
-            "click",
-            performLogout
-        );
-
-
-        function performLogout() {
-
-            localStorage.removeItem(
-                "anarchy_username"
-            );
-
-            location.reload();
-
-        }
-
-
-        async function appendToTxtLog(
-            filename,
-            logMessage
-        ) {
-
-            const fileKey =
-                filename.replace(".", "_");
-
-            const fileRef =
-                ref(
-                    db,
-                    `system_files/${fileKey}`
-                );
-
-            const snap =
-                await get(fileRef);
-
-            const currentContent =
-                snap.exists()
-                    ? snap.val()
-                    : "";
-
-            const updatedContent =
-                currentContent +
-                `[${new Date().toLocaleString()}] ${logMessage}\n`;
-
-            await set(
-                fileRef,
-                updatedContent
-            );
-
-        }
-
-
-        imgInput.addEventListener(
-            "change",
-            async (e) => {
-
-                if (isMuted()) {
-
-                    const left =
-                        currentUserData.muteExpires === -1
-                            ? "PERMANENT"
-                            : formatTimeLeft(
-                                currentUserData.muteExpires -
-                                Date.now()
-                            );
-
-                    alert(
-                        `TX BLOCKED (Muted) | Clear in: ${left}`
-                    );
-
-                    imgInput.value = "";
-
-                    return;
-                }
-
-
-                const file =
-                    e.target.files[0];
-
-                if (!file)
-                    return;
-
-
-                if (file.size > 2 * 1024 * 1024) {
-
-                    alert(
-                        "ERR: Payload exceeds 2MB limit."
-                    );
-
-                    return;
-                }
-
-
-                const reader =
-                    new FileReader();
-
-
-                reader.onload = async () => {
-
-                    const base64Img =
-                        reader.result;
-
-
-                    await push(
-                        messagesRef,
-                        {
-
-                            username: activeUser,
-
-                            nickname:
-                                currentUserData.nickname ||
-                                activeUser,
-
-                            userTag:
-                                currentUserData.tag ||
-                                "MEMBER",
-
-                            accessLevel:
-                                currentUserData.accessLevel ||
-                                1,
-
-                            message: "",
-
-                            image: base64Img,
-
-                            timestamp: Date.now()
-
-                        }
-                    );
-
-                };
-
-
-                reader.readAsDataURL(file);
-
-                imgInput.value = "";
-
-            }
-        );
-
-
-        async function sendMessage() {
-
-            if (!activeUser)
-                return alert(
-                    "ERR: Not authenticated."
-                );
-
-
-            if (isMuted()) {
-
-                const left =
-                    currentUserData.muteExpires === -1
-                        ? "PERMANENT"
-                        : formatTimeLeft(
-                            currentUserData.muteExpires -
-                            Date.now()
-                        );
-
-                return alert(
-                    `TX BLOCKED (Muted) | Clear in: ${left}`
-                );
-
-            }
-
-
-            const text =
-                msgInput.value.trim();
-
-            if (text === "")
-                return;
-
-
-            push(
-                messagesRef,
-                {
-
-                    username: activeUser,
-
-                    nickname:
-                        currentUserData.nickname ||
-                        activeUser,
-
-                    userTag:
-                        currentUserData.tag ||
-                        "MEMBER",
-
-                    accessLevel:
-                        currentUserData.accessLevel ||
-                        1,
-
-                    message: text,
-
-                    timestamp: Date.now()
-
-                }
-            );
-
-
-            msgInput.value = "";
-
-        }
-
-
-        sendBtn.addEventListener(
-            "click",
-            sendMessage
-        );
-
-
-        msgInput.addEventListener(
-            "keypress",
-            (e) => {
-
-                if (e.key === "Enter")
-                    sendMessage();
-
-            }
-        );
-
-
-        onChildAdded(
-            messagesRef,
-            (data) =>
-                renderMessage(
-                    data.key,
-                    data.val()
-                )
-        );
-
-
-        onChildChanged(
-            messagesRef,
-            (data) => {
-
-                const existingMsg =
-                    document.getElementById(
-                        `msg-${data.key}`
-                    );
-
-                if (existingMsg) {
-
-                    const body =
-                        existingMsg.querySelector(
-                            ".msg-body"
-                        );
-
-                    if (body)
-                        body.textContent =
-                            data.val().message;
-
-                }
-
-            }
-        );
-
-
-        onChildRemoved(
-            messagesRef,
-            (data) => {
-
-                const existingMsg =
-                    document.getElementById(
-                        `msg-${data.key}`
-                    );
-
-                if (existingMsg)
-                    existingMsg.remove();
-
-            }
-        );
-
-
-        function renderMessage(
-            msgId,
-            msgData
-        ) {
-
-            if (
-                document.getElementById(
-                    `msg-${msgId}`
-                )
-            )
-                return;
-
-
-            const msgElement =
-                document.createElement("div");
-
-            msgElement.classList.add("msg");
-
-            msgElement.id =
-                `msg-${msgId}`;
-
-
-            const tagText =
-                msgData.userTag ||
-                "MEMBER";
-
-            const level =
-                parseInt(
-                    msgData.accessLevel || 1
-                );
-
-
-            let tagClass =
-                "tag-default";
-
-
-            if (
-                level >= 10 ||
-                tagText.toUpperCase() === "OWNER"
-            )
-                tagClass = "tag-owner";
-
-            else if (
-                level >= 8 ||
-                tagText.toUpperCase() === "ADMIN"
-            )
-                tagClass = "tag-admin";
-
-            else if (
-                level >= 5 ||
-                tagText.toUpperCase() === "MOD"
-            )
-                tagClass = "tag-mod";
-
-
-            let modButtonsHtml = "";
-
-            const myLevel =
-                parseInt(
-                    currentUserData.accessLevel || 1
-                );
-
-
-            if (myLevel >= 5) {
-
-                modButtonsHtml +=
-                    `<button class="btn-mod"
-                    onclick="editMsg('${msgId}')">
-                    EDIT
-                    </button>`;
-
-                modButtonsHtml +=
-                    `<button class="btn-mod btn-danger"
-                    onclick="deleteMsg('${msgId}')">
-                    DEL
-                    </button>`;
-
-            }
-
-
-            if (myLevel >= 8) {
-
-                modButtonsHtml +=
-                    `<button class="btn-mod btn-danger"
-                    onclick="punishUser('${msgData.username}', 'MUTE')">
-                    MUTE
-                    </button>`;
-
-                modButtonsHtml +=
-                    `<button class="btn-mod btn-danger"
-                    onclick="punishUser('${msgData.username}', 'BANIP')">
-                    BAN
-                    </button>`;
-
-            }
-
-
-            let imageHtml =
-                msgData.image
-                    ? `<img
-                        src="${msgData.image}"
-                        class="chat-image">`
-                    : "";
-
-
-            msgElement.innerHTML = `
-
-                <div class="name">
-
-                    <span>
-                        ${escapeHTML(
-                            msgData.nickname
-                        )}
-
-                        <small style="color:#555">
-                            (@${escapeHTML(
-                                msgData.username
-                            )})
-                        </small>
-                    </span>
-
-                    <span
-                        class="user-tag ${tagClass}">
-                        [${escapeHTML(tagText)}]
-                    </span>
-
-                </div>
-
-                ${
-                    msgData.message
-                        ? `<div class="msg-body">
-                            ${escapeHTML(
-                                msgData.message
-                            )}
-                           </div>`
-                        : ""
-                }
-
-                ${imageHtml}
-
-                ${
-                    modButtonsHtml
-                        ? `<div class="mod-actions">
-                            ${modButtonsHtml}
-                           </div>`
-                        : ""
-                }
-            `;
-
-
-            messagesContainer.appendChild(
-                msgElement
-            );
-
-            messagesContainer.scrollTop =
-                messagesContainer.scrollHeight;
-
-        }
-
-
-        window.editMsg = async (msgId) => {
-
-            const newText =
-                prompt("OVERWRITE TX:");
-
-            if (
-                newText &&
-                newText.trim() !== ""
-            ) {
-
-                await update(
-                    ref(
-                        db,
-                        `global_messages/${msgId}`
-                    ),
-                    {
-                        message:
-                            newText.trim()
-                    }
-                );
-
-
-                await appendToTxtLog(
-                    "LOGS.txt",
-                    `[EDIT] User @${activeUser} edited message ID ${msgId} to: "${newText.trim()}"`
-                );
-
-            }
-
-        };
-
-
-        window.deleteMsg = async (msgId) => {
-
-            if (confirm("PURGE TX?")) {
-
-                await remove(
-                    ref(
-                        db,
-                        `global_messages/${msgId}`
-                    )
-                );
-
-
-                await appendToTxtLog(
-                    "LOGS.txt",
-                    `[DELETE] User @${activeUser} deleted message ID ${msgId}`
-                );
-
-            }
-
-        };
-
-
-        window.punishUser = async (
-            targetUser,
-            actionType
-        ) => {
-
-            const durationInput =
-                prompt(
-                    `Set ${actionType} duration in HOURS (0 = Perm, 0.5 = 30m):`,
-                    "24"
-                );
-
-
-            if (durationInput === null)
-                return;
-
-
-            const hours =
-                parseFloat(durationInput);
-
-
-            if (
-                isNaN(hours) ||
-                hours < 0
-            )
-                return alert(
-                    "ERR: Invalid duration."
-                );
-
-
-            const reason =
-                prompt(
-                    `Reason for ${actionType}:`,
-                    "TOS Violation"
-                );
-
-
-            if (reason === null)
-                return;
-
-
-            const targetRef =
-                ref(
-                    db,
-                    `users/${targetUser}`
-                );
-
-
-            const expiresAt =
-                hours === 0
-                    ? -1
-                    : Date.now() +
-                      (hours * 3600 * 1000);
-
-
-            if (actionType === "MUTE") {
-
-                await update(
-                    targetRef,
-                    {
-                        muted: true,
-                        muteReason: reason,
-                        muteExpires: expiresAt
-                    }
-                );
-
-            }
-
-            else if (actionType === "BANIP") {
-
-                await update(
-                    targetRef,
-                    {
-                        banned: true,
-                        banReason: reason,
-                        banExpires: expiresAt
-                    }
-                );
-
-            }
-
-
-            const logEntry =
-                `[${actionType}] Target: @${targetUser} | Hrs: ${
-                    hours === 0
-                        ? "Perm"
-                        : hours
-                } | Reason: "${reason}" | Exec: @${activeUser}`;
-
-
-            await appendToTxtLog(
-                "LOGS.txt",
-                logEntry
-            );
-
-
-            alert(
-                `EXECUTION COMPLETE: ${actionType} applied to @${targetUser}`
-            );
-
-        };
-
-
-        function escapeHTML(str) {
-
-            return str
-                ? str.replace(
-                    /[&<>'"]/g,
-                    tag => ({
-                        "&": "&amp;",
-                        "<": "&lt;",
-                        ">": "&gt;",
-                        "'": "&#39;",
-                        '"': "&quot;"
-                    }[tag] || tag)
-                )
-                : "";
-
-        }
-
-    </script>
+<div class="app">
+
+<section class="sdr-panel">
+<iframe class="sdr-frame"
+src="https://sdrproxy.xghvaladze.workers.dev/"
+allow="autoplay;microphone;fullscreen"
+referrerpolicy="no-referrer"
+title="OpenWebRX WebSDR"></iframe>
+</section>
+
+<aside class="chat-panel">
+
+<div class="chat-header">
+<div class="header-title">[ ANARCHY_NET // RELAY_01 // <span id="versionText"></span> ]</div>
+<div class="header-user-row">
+<span id="currentUser"></span>
+<button id="changeNickBtn" class="btn-small" style="background:#1f2937">Alias</button>
+<button id="logoutBtn" class="btn-small">Exit</button>
+</div>
+</div>
+
+<div class="messages" id="messages"></div>
+
+<form class="input-area" id="chatForm" onsubmit="return false" autocomplete="off">
+<label class="img-upload-btn" title="Upload Image">[IMG]
+<input type="file" id="imgInput" accept="image/*" style="display:none">
+</label>
+<input type="text" id="msgInput" placeholder="Broadcast..." autocomplete="off">
+<button id="sendBtn" type="button" title="Send Message"><img src="send.png" alt="Send" class="send-btn-icon"></button>
+</form>
+
+</aside>
+</div>
+
+<div class="warning-popup" id="warning">[!] UNMODERATED ZONE: PROCEED WITH CAUTION</div>
+
+<div class="banned-overlay" id="bannedOverlay" style="display:none">
+<div class="banned-box">
+<h2>ACCESS RESTRICTED</h2>
+<p id="banReasonText">Connection rejected by host.</p>
+<div id="banTimeLeft" class="time-left-text">Calculating...</div>
+<button id="bannedLogoutBtn">Disconnect</button>
+</div>
+</div>
+
+<div class="auth-overlay" id="authOverlay">
+<div class="auth-box">
+<h2 id="authTitle">A U T H E N T I C A T E</h2>
+<input type="text" id="authUsername" placeholder="Root ID (Username)" autocomplete="off">
+<input type="text" id="authNickname" placeholder="Display Alias" autocomplete="off" style="display:none">
+<input type="password" id="authPin" placeholder="4-Digit PIN Key" maxlength="8" autocomplete="off">
+<input type="text" id="authRecoveryCode" placeholder="Override Code" style="display:none" autocomplete="off">
+<button id="authPrimaryBtn">Initialize</button>
+<p class="auth-toggle" id="authResetToggle" style="margin-bottom:8px">Lost PIN? Initiate Override</p>
+<p class="auth-toggle" id="authModeToggle">New Identity? Register</p>
+</div>
+</div>
+
+<script type="module">
+/* =========================================================
+   EDITABLE CONFIGURATION
+   Change these values instead of searching through the code.
+   ========================================================= */
+
+const CONFIG={
+VERSION:"1.0.2A",
+SDR_WIDTH:"85%",
+CHAT_WIDTH:"15%",
+CHAT_FONT_SIZE:"0.80rem",
+IMAGE_HEIGHT:"220px",
+WARNING_TIME:"3s",
+MOBILE_SDR_HEIGHT:"72vh",
+MOBILE_CHAT_HEIGHT:"28vh",
+MAX_IMAGE_SIZE:2*1024*1024
+};
+
+document.documentElement.style.setProperty("--sdr-width",CONFIG.SDR_WIDTH);
+document.documentElement.style.setProperty("--chat-width",CONFIG.CHAT_WIDTH);
+document.documentElement.style.setProperty("--chat-font",CONFIG.CHAT_FONT_SIZE);
+document.documentElement.style.setProperty("--image-height",CONFIG.IMAGE_HEIGHT);
+document.documentElement.style.setProperty("--warning-time",CONFIG.WARNING_TIME);
+document.getElementById("versionText").textContent="v"+CONFIG.VERSION;
+
+/* =========================================================
+   FIREBASE
+   ========================================================= */
+
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import{getDatabase,ref,push,onChildAdded,onChildChanged,onChildRemoved,get,set,update,remove,onValue}from"https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyDFzJR2Yg2Z5VS5PEX7S8fDBTS8J49hfJM",
+authDomain:"chatprojecttest-fed60.firebaseapp.com",
+databaseURL:"https://chatprojecttest-fed60-default-rtdb.firebaseio.com/",
+projectId:"chatprojecttest-fed60",
+storageBucket:"chatprojecttest-fed60.firebasestorage.app",
+messagingSenderId:"888428258274",
+appId:"1:888428258274:web:bc3a453ba34208992f4fbb",
+measurementId:"G-GTY7Y12J65"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
+const messagesRef=ref(db,"global_messages");
+
+/* =========================================================
+   ELEMENTS / STATE
+   ========================================================= */
+
+const authOverlay=document.getElementById("authOverlay");
+const bannedOverlay=document.getElementById("bannedOverlay");
+const banReasonText=document.getElementById("banReasonText");
+const banTimeLeft=document.getElementById("banTimeLeft");
+const bannedLogoutBtn=document.getElementById("bannedLogoutBtn");
+const authTitle=document.getElementById("authTitle");
+const authUsername=document.getElementById("authUsername");
+const authNickname=document.getElementById("authNickname");
+const authPin=document.getElementById("authPin");
+const authRecoveryCode=document.getElementById("authRecoveryCode");
+const authPrimaryBtn=document.getElementById("authPrimaryBtn");
+const authModeToggle=document.getElementById("authModeToggle");
+const authResetToggle=document.getElementById("authResetToggle");
+const currentUserDisplay=document.getElementById("currentUser");
+const logoutBtn=document.getElementById("logoutBtn");
+const changeNickBtn=document.getElementById("changeNickBtn");
+const messagesContainer=document.getElementById("messages");
+const msgInput=document.getElementById("msgInput");
+const imgInput=document.getElementById("imgInput");
+const sendBtn=document.getElementById("sendBtn");
+
+let currentMode="login";
+let activeUser=localStorage.getItem("anarchy_username")||null;
+let currentUserData={accessLevel:1,tag:"MEMBER",nickname:"Anon",muted:false,banned:false};
+let banTimerInterval=null;
+
+/* =========================================================
+   DATABASE FILES
+   ========================================================= */
+
+async function initDatabaseFiles(){
+const files=["TTLS.txt","ACL.txt","LOGS.txt"];
+for(const file of files){
+const fileRef=ref(db,`system_files/${file.replace(".","_")}`);
+const snap=await get(fileRef);
+if(!snap.exists())await set(fileRef,`[INITIALIZED ${file} AT ${new Date().toISOString()}]\n`);
+}
+}
+initDatabaseFiles();
+
+/* =========================================================
+   BAN / MUTE
+   ========================================================= */
+
+function formatTimeLeft(ms){
+const totalSeconds=Math.floor(ms/1000);
+const d=Math.floor(totalSeconds/86400);
+const h=Math.floor((totalSeconds%86400)/3600);
+const m=Math.floor((totalSeconds%3600)/60);
+const s=totalSeconds%60;
+let res="";
+if(d>0)res+=d+"d ";
+if(h>0)res+=h+"h ";
+if(m>0)res+=m+"m ";
+res+=s+"s";
+return res.trim();
+}
+
+function checkBanStatus(){
+if(banTimerInterval)clearInterval(banTimerInterval);
+
+if(currentUserData.banned){
+if(currentUserData.banExpires!==-1&&Date.now()>currentUserData.banExpires){
+update(ref(db,`users/${activeUser}`),{banned:false});
+bannedOverlay.style.display="none";
+return;
+}
+
+banReasonText.textContent=`Reason: ${currentUserData.banReason||"SysAdmin Override"}`;
+bannedOverlay.style.display="flex";
+
+if(currentUserData.banExpires===-1){
+banTimeLeft.textContent="Lock: PERMANENT";
+}else{
+banTimerInterval=setInterval(updateBanTimer,1000);
+updateBanTimer();
+}
+}else bannedOverlay.style.display="none";
+}
+
+function updateBanTimer(){
+if(!currentUserData.banned||currentUserData.banExpires===-1)return;
+const remaining=currentUserData.banExpires-Date.now();
+if(remaining<=0){
+clearInterval(banTimerInterval);
+checkBanStatus();
+}else banTimeLeft.textContent="T-Minus: "+formatTimeLeft(remaining);
+}
+
+function isMuted(){
+if(!currentUserData.muted)return false;
+if(currentUserData.muteExpires!==-1&&Date.now()>currentUserData.muteExpires){
+update(ref(db,`users/${activeUser}`),{muted:false});
+currentUserData.muted=false;
+return false;
+}
+return true;
+}
+
+function listenToUserStatus(username){
+onValue(ref(db,`users/${username}`),snapshot=>{
+if(!snapshot.exists())return;
+currentUserData=snapshot.val();
+currentUserData.accessLevel=parseInt(currentUserData.accessLevel||1);
+currentUserDisplay.textContent=`${currentUserData.nickname} (@${username}) [Lvl:${currentUserData.accessLevel}]`;
+checkBanStatus();
+});
+}
+
+/* =========================================================
+   AUTH
+   ========================================================= */
+
+if(activeUser){
+authOverlay.style.display="none";
+listenToUserStatus(activeUser);
+}
+
+setTimeout(()=>{
+const warning=document.getElementById("warning");
+if(warning)warning.remove();
+},3500);
+
+authModeToggle.addEventListener("click",()=>{
+if(currentMode==="login"){
+currentMode="register";
+authTitle.textContent="N E W   I D E N T I T Y";
+authPrimaryBtn.textContent="Register";
+authModeToggle.textContent="Return to Auth";
+authNickname.style.display="block";
+authRecoveryCode.style.display="none";
+}else{
+currentMode="login";
+authTitle.textContent="A U T H E N T I C A T E";
+authPrimaryBtn.textContent="Initialize";
+authModeToggle.textContent="New Identity? Register";
+authNickname.style.display="none";
+authRecoveryCode.style.display="none";
+}
+});
+
+authResetToggle.addEventListener("click",()=>{
+currentMode="reset";
+authTitle.textContent="P I N   O V E R R I D E";
+authPrimaryBtn.textContent="Update Key";
+authRecoveryCode.style.display="block";
+authNickname.style.display="none";
+});
+
+authPrimaryBtn.addEventListener("click",async()=>{
+const username=authUsername.value.trim().toLowerCase();
+const nickname=authNickname.value.trim()||username;
+const pin=authPin.value.trim();
+const recCode=authRecoveryCode.value.trim();
+
+if(!username||!pin)return alert("ERR: Missing parameters.");
+
+const userRef=ref(db,`users/${username}`);
+
+if(currentMode==="register"){
+const userSnap=await get(userRef);
+if(userSnap.exists())return alert("ERR: ID exists.");
+
+const recoveryCode=Math.floor(100000+Math.random()*900000).toString();
+
+await set(userRef,{
+username,nickname,pin,recoveryCode,tag:"MEMBER",accessLevel:1,muted:false,banned:false
+});
+
+alert(`REGISTRATION COMPLETE\n\nSave Override Code:\n${recoveryCode}`);
+loginUser(username);
+
+}else if(currentMode==="login"){
+const snapshot=await get(userRef);
+if(!snapshot.exists())return alert("ERR: Unknown ID.");
+if(snapshot.val().pin!==pin)return alert("ERR: Invalid PIN.");
+loginUser(username);
+
+}else if(currentMode==="reset"){
+const snapshot=await get(userRef);
+if(!snapshot.exists())return alert("ERR: Unknown ID.");
+if(snapshot.val().recoveryCode!==recCode)return alert("ERR: Invalid Override Code.");
+await update(userRef,{pin});
+alert("PIN UPDATED. INITIALIZING...");
+loginUser(username);
+}
+});
+
+function loginUser(username){
+activeUser=username;
+localStorage.setItem("anarchy_username",username);
+listenToUserStatus(username);
+authOverlay.style.display="none";
+}
+
+changeNickBtn.addEventListener("click",async()=>{
+const newNick=prompt("Enter new Alias:",currentUserData.nickname);
+if(newNick&&newNick.trim()!=="")
+await update(ref(db,`users/${activeUser}`),{nickname:newNick.trim()});
+});
+
+logoutBtn.addEventListener("click",performLogout);
+bannedLogoutBtn.addEventListener("click",performLogout);
+
+function performLogout(){
+localStorage.removeItem("anarchy_username");
+location.reload();
+}
+
+/* =========================================================
+   LOGGING
+   ========================================================= */
+
+async function appendToTxtLog(filename,logMessage){
+const fileKey=filename.replace(".","_");
+const fileRef=ref(db,`system_files/${fileKey}`);
+const snap=await get(fileRef);
+const currentContent=snap.exists()?snap.val():"";
+await set(fileRef,currentContent+`[${new Date().toLocaleString()}] ${logMessage}\n`);
+}
+
+/* =========================================================
+   IMAGE UPLOAD
+   ========================================================= */
+
+imgInput.addEventListener("change",async e=>{
+if(isMuted()){
+const left=currentUserData.muteExpires===-1?"PERMANENT":formatTimeLeft(currentUserData.muteExpires-Date.now());
+alert(`TX BLOCKED (Muted) | Clear in: ${left}`);
+imgInput.value="";
+return;
+}
+
+const file=e.target.files[0];
+if(!file)return;
+
+if(file.size>CONFIG.MAX_IMAGE_SIZE){
+alert("ERR: Payload exceeds 2MB limit.");
+imgInput.value="";
+return;
+}
+
+const reader=new FileReader();
+reader.onload=async()=>{
+await push(messagesRef,{
+username:activeUser,
+nickname:currentUserData.nickname||activeUser,
+userTag:currentUserData.tag||"MEMBER",
+accessLevel:currentUserData.accessLevel||1,
+message:"",
+image:reader.result,
+timestamp:Date.now()
+});
+};
+reader.readAsDataURL(file);
+imgInput.value="";
+});
+
+/* =========================================================
+   MESSAGES
+   ========================================================= */
+
+async function sendMessage(){
+if(!activeUser)return alert("ERR: Not authenticated.");
+
+if(isMuted()){
+const left=currentUserData.muteExpires===-1?"PERMANENT":formatTimeLeft(currentUserData.muteExpires-Date.now());
+return alert(`TX BLOCKED (Muted) | Clear in: ${left}`);
+}
+
+const text=msgInput.value.trim();
+if(text==="")return;
+
+await push(messagesRef,{
+username:activeUser,
+nickname:currentUserData.nickname||activeUser,
+userTag:currentUserData.tag||"MEMBER",
+accessLevel:currentUserData.accessLevel||1,
+message:text,
+timestamp:Date.now()
+});
+
+msgInput.value="";
+}
+
+sendBtn.addEventListener("click",sendMessage);
+
+msgInput.addEventListener("keypress",e=>{
+if(e.key==="Enter")sendMessage();
+});
+
+onChildAdded(messagesRef,data=>renderMessage(data.key,data.val()));
+
+onChildChanged(messagesRef,data=>{
+const existingMsg=document.getElementById(`msg-${data.key}`);
+if(existingMsg){
+const body=existingMsg.querySelector(".msg-body");
+if(body)body.textContent=data.val().message;
+}
+});
+
+onChildRemoved(messagesRef,data=>{
+const existingMsg=document.getElementById(`msg-${data.key}`);
+if(existingMsg)existingMsg.remove();
+});
+
+/* =========================================================
+   MESSAGE RENDER
+   ========================================================= */
+
+function renderMessage(msgId,msgData){
+if(document.getElementById(`msg-${msgId}`))return;
+
+const msgElement=document.createElement("div");
+msgElement.classList.add("msg");
+msgElement.id=`msg-${msgId}`;
+
+const tagText=msgData.userTag||"MEMBER";
+const level=parseInt(msgData.accessLevel||1);
+
+let tagClass="tag-default";
+if(level>=10||tagText.toUpperCase()==="OWNER")tagClass="tag-owner";
+else if(level>=8||tagText.toUpperCase()==="ADMIN")tagClass="tag-admin";
+else if(level>=5||tagText.toUpperCase()==="MOD")tagClass="tag-mod";
+
+let modButtonsHtml="";
+const myLevel=parseInt(currentUserData.accessLevel||1);
+
+if(myLevel>=5){
+modButtonsHtml+=`<button class="btn-mod" onclick="editMsg('${msgId}')">EDIT</button>`;
+modButtonsHtml+=`<button class="btn-mod btn-danger" onclick="deleteMsg('${msgId}')">DEL</button>`;
+}
+
+if(myLevel>=8){
+modButtonsHtml+=`<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}','MUTE')">MUTE</button>`;
+modButtonsHtml+=`<button class="btn-mod btn-danger" onclick="punishUser('${msgData.username}','BANIP')">BAN</button>`;
+}
+
+const imageHtml=msgData.image?`<img src="${msgData.image}" class="chat-image">`:"";
+
+msgElement.innerHTML=`
+<div class="name">
+<span>${escapeHTML(msgData.nickname)} <small style="color:#555">(@${escapeHTML(msgData.username)})</small></span>
+<span class="user-tag ${tagClass}">[${escapeHTML(tagText)}]</span>
+</div>
+${msgData.message?`<div class="msg-body">${escapeHTML(msgData.message)}</div>`:""}
+${imageHtml}
+${modButtonsHtml?`<div class="mod-actions">${modButtonsHtml}</div>`:""}
+`;
+
+messagesContainer.appendChild(msgElement);
+messagesContainer.scrollTop=messagesContainer.scrollHeight;
+}
+
+/* =========================================================
+   MODERATION
+   ========================================================= */
+
+window.editMsg=async msgId=>{
+const newText=prompt("OVERWRITE TX:");
+if(newText&&newText.trim()!==""){
+await update(ref(db,`global_messages/${msgId}`),{message:newText.trim()});
+await appendToTxtLog("LOGS.txt",`[EDIT] User @${activeUser} edited message ID ${msgId} to: "${newText.trim()}"`);
+}
+};
+
+window.deleteMsg=async msgId=>{
+if(confirm("PURGE TX?")){
+await remove(ref(db,`global_messages/${msgId}`));
+await appendToTxtLog("LOGS.txt",`[DELETE] User @${activeUser} deleted message ID ${msgId}`);
+}
+};
+
+window.punishUser=async(targetUser,actionType)=>{
+const durationInput=prompt(`Set ${actionType} duration in HOURS (0 = Perm, 0.5 = 30m):`,"24");
+if(durationInput===null)return;
+
+const hours=parseFloat(durationInput);
+if(isNaN(hours)||hours<0)return alert("ERR: Invalid duration.");
+
+const reason=prompt(`Reason for ${actionType}:`,"TOS Violation");
+if(reason===null)return;
+
+const targetRef=ref(db,`users/${targetUser}`);
+const expiresAt=hours===0?-1:Date.now()+hours*3600*1000;
+
+if(actionType==="MUTE")
+await update(targetRef,{muted:true,muteReason:reason,muteExpires:expiresAt});
+else if(actionType==="BANIP")
+await update(targetRef,{banned:true,banReason:reason,banExpires:expiresAt});
+
+await appendToTxtLog(
+"LOGS.txt",
+`[${actionType}] Target: @${targetUser} | Hrs: ${hours===0?"Perm":hours} | Reason: "${reason}" | Exec: @${activeUser}`
+);
+
+alert(`EXECUTION COMPLETE: ${actionType} applied to @${targetUser}`);
+};
+
+/* =========================================================
+   SECURITY
+   ========================================================= */
+
+function escapeHTML(str){
+return str?str.replace(/[&<>'"]/g,tag=>({
+"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"
+}[tag]||tag)):"";
+}
+</script>
 
 </body>
 </html>
